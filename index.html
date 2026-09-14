@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -177,7 +177,19 @@
     <li id="lstep-wishlist" class="pending">⏳ Loading wishlist…</li>
     <li id="lstep-restaurants" class="pending">⏳ Loading restaurants &amp; reviews…</li>
   </ul>
+  <div style="margin-top:16px;width:92vw;max-width:600px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+      <span style="font-size:0.78rem;font-weight:bold;color:#6B2D3E;">🐛 Debug Log (latest first)</span>
+      <button onclick="document.getElementById('debug-panel').innerHTML=''" style="font-size:0.72rem;padding:2px 8px;cursor:pointer;border:1px solid #ccc;border-radius:4px;background:#fff;">Clear</button>
+    </div>
+    <div id="debug-panel" style="background:#fff;border:1px solid #ccc;border-radius:6px;padding:8px;font-size:0.75rem;font-family:monospace;max-height:220px;overflow-y:auto;color:#222;text-align:left;"></div>
+    <div style="margin-top:6px;font-size:0.72rem;color:#888;word-break:break-all;">
+      <strong>URL:</strong> https://oofjwdtcasmderyduzki.supabase.co/rest/v1/<br>
+      <strong>Key (first 40 chars):</strong> eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3M…
+    </div>
+  </div>
 </div>
+ 
 <div id="status-indicator">🟢 Connected</div>
  
 
@@ -191,13 +203,15 @@
 // ─────────────────────────────────────────
 const SUPA_URL = 'https://oofjwdtcasmderyduzki.supabase.co';
 const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9vZmp3ZHRjYXNtZGVyeWR1emtpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkzOTQ3OTgsImV4cCI6MjEwNDk3MDc5OH0.H18m3Ooip-At6jZlIngac26EB5_cL2LMLwEIX7csHkY';
+const SUPA_REST = SUPA_URL + '/rest/v1/';
 
 const HEADERS = {
   'apikey': SUPA_KEY,
-  'Authorization': `Bearer ${SUPA_KEY}`,
+  'Authorization': 'Bearer ' + SUPA_KEY,
   'Content-Type': 'application/json',
   'Prefer': 'return=representation'
 };
+ 
 
 // ─────────────────────────────────────────
 // STATE
@@ -229,47 +243,116 @@ function clearSession(key) {
 }
 
 // ─────────────────────────────────────────
+// DEBUG PANEL HELPERS
+// ─────────────────────────────────────────
+function debugLog(method, url, status, body) {
+  const panel = document.getElementById('debug-panel');
+  if (!panel) return;
+  const entry = document.createElement('div');
+  entry.style.cssText = 'border-bottom:1px solid #ccc;padding:4px 0;word-break:break-all;';
+  const color = (!status || status >= 400) ? '#c00' : '#060';
+  entry.innerHTML =
+    '<span style="font-weight:bold;color:' + color + ';">' + method + ' ' + status + '</span> ' +
+    '<span style="color:#444;">' + url + '</span>' +
+    (body ? '<pre style="margin:2px 0 0;font-size:0.72rem;white-space:pre-wrap;color:#333;">' + body.slice(0, 400) + '</pre>' : '');
+  panel.insertBefore(entry, panel.firstChild);
+}
+
+// ─────────────────────────────────────────
 // API HELPERS
 // ─────────────────────────────────────────
 async function dbGet(table, query = '') {
-  const res = await fetch(`${SUPA_URL}/rest/v1/${table}${query ? '?' + query : ''}`, {
-    headers: { ...HEADERS, 'Prefer': 'return=representation' }
-  });
-  if (!res.ok) throw new Error(`GET ${table} failed: ${res.status}`);
-  return res.json();
+  const url = SUPA_REST + table + (query ? '?' + query : '');
+  let res, bodyText;
+  try {
+    res = await fetch(url, {
+      headers: {
+        'apikey': SUPA_KEY,
+        'Authorization': 'Bearer ' + SUPA_KEY,
+        'Content-Type': 'application/json'
+      }
+    });
+    bodyText = await res.text();
+    debugLog('GET', url, res.status, bodyText);
+  } catch(e) {
+    debugLog('GET', url, 'NETWORK_ERROR', e.message);
+    throw new Error('GET ' + table + ' network error: ' + e.message);
+  }
+  if (!res.ok) throw new Error('GET ' + table + ' failed: ' + res.status + ' — ' + bodyText);
+  return JSON.parse(bodyText);
 }
 
 async function dbInsert(table, data) {
-  const res = await fetch(`${SUPA_URL}/rest/v1/${table}`, {
-    method: 'POST',
-    headers: HEADERS,
-    body: JSON.stringify(data)
-  });
-  if (!res.ok) {
-    const err = await res.text();
-    throw new Error(`INSERT ${table} failed: ${err}`);
+  const url = SUPA_REST + table;
+  let res, bodyText;
+  try {
+    res = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'apikey': SUPA_KEY,
+        'Authorization': 'Bearer ' + SUPA_KEY,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=representation'
+      },
+      body: JSON.stringify(data)
+    });
+    bodyText = await res.text();
+    debugLog('POST', url, res.status, bodyText);
+  } catch(e) {
+    debugLog('POST', url, 'NETWORK_ERROR', e.message);
+    throw new Error('INSERT ' + table + ' network error: ' + e.message);
   }
-  return res.json();
+  if (!res.ok) throw new Error('INSERT ' + table + ' failed: ' + res.status + ' — ' + bodyText);
+  return JSON.parse(bodyText);
 }
 
 async function dbUpdate(table, query, data) {
-  const res = await fetch(`${SUPA_URL}/rest/v1/${table}?${query}`, {
-    method: 'PATCH',
-    headers: HEADERS,
-    body: JSON.stringify(data)
-  });
-  if (!res.ok) throw new Error(`UPDATE ${table} failed: ${res.status}`);
-  return res.json();
+  const url = SUPA_REST + table + '?' + query;
+  let res, bodyText;
+  try {
+    res = await fetch(url, {
+      method: 'PATCH',
+      headers: {
+        'apikey': SUPA_KEY,
+        'Authorization': 'Bearer ' + SUPA_KEY,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=representation'
+      },
+      body: JSON.stringify(data)
+    });
+    bodyText = await res.text();
+    debugLog('PATCH', url, res.status, bodyText);
+  } catch(e) {
+    debugLog('PATCH', url, 'NETWORK_ERROR', e.message);
+    throw new Error('UPDATE ' + table + ' network error: ' + e.message);
+  }
+  if (!res.ok) throw new Error('UPDATE ' + table + ' failed: ' + res.status + ' — ' + bodyText);
+  return JSON.parse(bodyText);
 }
 
 async function dbDelete(table, query) {
-  const res = await fetch(`${SUPA_URL}/rest/v1/${table}?${query}`, {
-    method: 'DELETE',
-    headers: { ...HEADERS, 'Prefer': 'return=representation' }
-  });
-  if (!res.ok) throw new Error(`DELETE ${table} failed: ${res.status}`);
+  const url = SUPA_REST + table + '?' + query;
+  let res, bodyText;
+  try {
+    res = await fetch(url, {
+      method: 'DELETE',
+      headers: {
+        'apikey': SUPA_KEY,
+        'Authorization': 'Bearer ' + SUPA_KEY,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=representation'
+      }
+    });
+    bodyText = await res.text();
+    debugLog('DELETE', url, res.status, bodyText);
+  } catch(e) {
+    debugLog('DELETE', url, 'NETWORK_ERROR', e.message);
+    throw new Error('DELETE ' + table + ' network error: ' + e.message);
+  }
+  if (!res.ok) throw new Error('DELETE ' + table + ' failed: ' + res.status + ' — ' + bodyText);
   return true;
 }
+ 
 
 // ─────────────────────────────────────────
 // ERROR / LOADING UI
