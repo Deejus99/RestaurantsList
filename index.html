@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Restaurant Tracker</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f1f5f9;min-height:100vh;color:#1e293b;font-size:14px;}
+input,select,textarea,button{font-family:inherit;font-size:14px;}
+button{cursor:pointer;}
+.page{display:none;}
+.page.active{display:block;}
+.card{background:#fff;border-radius:10px;padding:16px;margin-bottom:12px;box-shadow:0 1px 4px rgba(0,0,0,0.07);}
+.inp{width:100%;padding:8px 10px;border:1px solid #cbd5e1;border-radius:6px;outline:none;font-size:14px;}
+.inp:focus{border-color:#2563eb;}
+.inp-sm{width:72px;padding:6px 8px;border:1px solid #cbd5e1;border-radius:6px;outline:none;font-size:14px;text-align:center;}
+.inp-sm:focus{border-color:#2563eb;}
+.btn{padding:9px 16px;border:none;border-radius:7px;font-weight:600;cursor:pointer;font-size:14px;}
+.btn-primary{background:#2563eb;color:#fff;}
+.btn-primary:hover{background:#1d4ed8;}
+.btn-secondary{background:#f1f5f9;color:#334155;border:1px solid #e2e8f0;}
+.btn-secondary:hover{background:#e2e8f0;}
+.btn-danger{background:#fee2e2;color:#dc2626;border:1px solid #fecaca;}
+.btn-danger:hover{background:#fecaca;}
+.btn-success{background:#dcfce7;color:#16a34a;border:1px solid #86efac;}
+.btn-sm{padding:6px 11px;font-size:12px;border-radius:6px;}
+.lbl{font-size:11px;font-weight:600;color:#94a3b8;text-transform:uppercase;letter-spacing:0.5px;display:block;margin-bottom:4px;}
+.err{color:#dc2626;font-size:13px;margin-top:6px;display:none;}
+.err.show{display:block;}
+.tag{display:inline-block;padding:3px 8px;border-radius:5px;font-size:12px;font-weight:600;}
+.tag-grey{background:#f1f5f9;color:#64748b;border:1px solid #e2e8f0;}
+.tag-blue{background:#eff6ff;color:#2563eb;border:1px solid #bfdbfe;}
+.tag-green{background:#f0fdf4;color:#16a34a;border:1px solid #86efac;}
+.tag-amber{background:#fffbeb;color:#d97706;border:1px solid #fde68a;}
+hr.div{border:none;border-top:1px solid #f1f5f9;margin:12px 0;}
+</style>
+</head>
+<body>
+
+<!-- SETUP PAGE -->
+<div id="page-setup" class="page active">
+  <div style="max-width:420px;margin:60px auto;padding:24px;">
+    <div class="card">
+      <div style="font-size:22px;font-weight:700;color:#2563eb;margin-bottom:4px;">🍽️ Restaurant Tracker</div>
+      <div style="color:#64748b;margin-bottom:22px;">Create two user accounts to get started.</div>
+      <div style="margin-bottom:18px;">
+        <div style="font-size:15px;font-weight:700;margin-bottom:10px;color:#334155;">User 1</div>
+        <div style="margin-bottom:8px;"><label class="lbl">Username</label><input id="s-u1-name" class="inp" type="text" placeholder="e.g. Alice" maxlength="20"></div>
+        <div><label class="lbl">4-digit PIN</label><input id="s-u1-pin" class="inp" type="password" placeholder="••••" maxlength="4" inputmode="numeric"></div>
+      </div>
+      <div style="margin-bottom:20px;">
+        <div style="font-size:15px;font-weight:700;margin-bottom:10px;color:#334155;">User 2</div>
+        <div style="margin-bottom:8px;"><label class="lbl">Username</label><input id="s-u2-name" class="inp" type="text" placeholder="e.g. Bob" maxlength="20"></div>
+        <div><label class="lbl">4-digit PIN</label><input id="s-u2-pin" class="inp" type="password" placeholder="••••" maxlength="4" inputmode="numeric"></div>
+      </div>
+      <div id="s-err" class="err"></div>
+      <button class="btn btn-primary" style="width:100%;margin-top:10px;" onclick="doSetup()">Create Accounts</button>
+    </div>
+  </div>
+</div>
+
+<!-- LOGIN PAGE -->
+<div id="page-login" class="page">
+  <div style="max-width:400px;margin:60px auto;padding:24px;">
+    <div class="card">
+      <div style="font-size:22px;font-weight:700;color:#2563eb;margin-bottom:4px;">🍽️ Restaurant Tracker</div>
+      <div style="color:#64748b;margin-bottom:22px;">Who's logging in?</div>
+      <div id="login-user-btns" style="display:flex;gap:10px;margin-bottom:18px;"></div>
+      <div id="login-pin-area" style="display:none;">
+        <label class="lbl" id="login-pin-label"></label>
+        <input id="login-pin-input" class="inp" type="password" placeholder="Enter PIN" maxlength="4" inputmode="numeric" onkeydown="if(event.key==='Enter')doLogin()">
+        <div id="login-err" class="err"></div>
+        <button class="btn btn-primary" style="width:100%;margin-top:10px;" onclick="doLogin()">Login</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN APP PAGE -->
+<div id="page-app" class="page">
+  <div style="background:#2563eb;color:#fff;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(37,99,235,0.3);">
+    <span style="font-size:15px;font-weight:700;">🍽️ <span id="header-user"></span></span>
+    <button onclick="switchUser()" style="background:rgba(255,255,255,0.2);color:#fff;border:1px solid rgba(255,255,255,0.4);padding:6px 13px;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;">Switch User</button>
+  </div>
+  <div style="background:#fff;border-bottom:1px solid #e2e8f0;display:flex;position:sticky;top:49px;z-index:99;">
+    <button id="tab-btn-0" onclick="switchTab(0)" style="flex:1;padding:12px 4px;font-size:13px;font-weight:600;border:none;background:none;border-bottom:3px solid transparent;color:#64748b;cursor:pointer;">🌟 Wishlist</button>
+    <button id="tab-btn-1" onclick="switchTab(1)" style="flex:1;padding:12px 4px;font-size:13px;font-weight:600;border:none;background:none;border-bottom:3px solid transparent;color:#64748b;cursor:pointer;">⏳ Pending</button>
+    <button id="tab-btn-2" onclick="switchTab(2)" style="flex:1;padding:12px 4px;font-size:13px;font-weight:600;border:none;background:none;border-bottom:3px solid transparent;color:#64748b;cursor:pointer;">✅ Completed</button>
+    <button id="tab-btn-3" onclick="switchTab(3)" style="flex:1;padding:12px 4px;font-size:13px;font-weight:600;border:none;background:none;border-bottom:3px solid transparent;color:#64748b;cursor:pointer;">💚 Return</button>
+  </div>
+  <div id="tab-content" style="max-width:680px;margin:0 auto;padding:16px;"></div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════
+var STATE = {
+  users: null,
+  currentUser: null,
+  activeTab: 0,
+  wishlist: [],
+  pending: [],
+  completed: []
+};
+
+var CUISINES = ['Italian','Japanese','Chinese','Indian','French','Mexican','British','American','Greek','Thai','Spanish','Other'];
+
+var _loginSelectedUser = null;
+
+// ═══════════════════════════════════════════════
+// PERSISTENCE
+// ═══════════════════════════════════════════════
+function saveState() {
+  try {
+    localStorage.setItem('rt3_state', JSON.stringify({
+      users: STATE.users,
+      wishlist: STATE.wishlist,
+      pending: STATE.pending,
+      completed: STATE.completed
+    }));
+  } catch(e) {}
+}
+
+function loadState() {
+  try {
+    var raw = localStorage.getItem('rt3_state');
+    if (!raw) return;
+    var s = JSON.parse(raw);
+    if (s.users) STATE.users = s.users;
+    if (s.wishlist) STATE.wishlist = s.wishlist;
+    if (s.pending) STATE.pending = s.pending;
+    if (s.completed) STATE.completed = s.completed;
+  } catch(e) {}
+}
+
+// ═══════════════════════════════════════════════
+// UTILS
+// ═══════════════════════════════════════════════
+function uid() {
+  return Date.now().toString(36) + Math.random().toString(36).slice(2);
+}
+
+function esc(s) {
+  if (s === null || s === undefined) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function showErr(id, msg) {
+  var el = document.getElementById(id);
+  if (!el) return;
+  el.textContent = msg;
+  el.className = 'err show';
+}
+
+function hideErr(id) {
+  var el = document.getElementById(id);
+  if (!el) return;
+  el.className = 'err';
+}
+
+function getVal(id) {
+  var el = document.getElementById(id);
+  return el ? el.value : '';
+}
+
+function getInt(id) {
+  var v = parseInt(getVal(id), 10);
+  return v;
+}
+
+function getChecked(id) {
+  var el = document.getElementById(id);
+  return el ? el.checked : false;
+}
+
+function userName(i) {
+  return STATE.users && STATE.users[i] ? STATE.users[i].name : 'User '+(i+1);
+}
+
+function otherUser() {
+  return STATE.currentUser === 0 ? 1 : 0;
+}
+
+// ═══════════════════════════════════════════════
+// PAGES
+// ═══════════════════════════════════════════════
+function showPage(id) {
+  ['page-setup','page-login','page-app'].forEach(function(p) {
+    document.getElementById(p).className = 'page' + (p === id ? ' active' : '');
+  });
+}
+
+// ═══════════════════════════════════════════════
+// SETUP
+// ═══════════════════════════════════════════════
+function doSetup() {
+  hideErr('s-err');
+  var n1 = getVal('s-u1-name').trim();
+  var p1 = getVal('s-u1-pin').trim();
+  var n2 = getVal('s-u2-name').trim();
+  var p2 = getVal('s-u2-pin').trim();
+  if (!n1 || !n2) { showErr('s-err','Both usernames are required.'); return; }
+  if (n1.toLowerCase() === n2.toLowerCase()) { showErr('s-err','Usernames must be different.'); return; }
+  if (!/^\d{4}$/.test(p1) || !/^\d{4}$/.test(p2)) { showErr('s-err','Both PINs must be exactly 4 digits.'); return; }
+  STATE.users = [{name:n1,pin:p1},{name:n2,pin:p2}];
+  saveState();
+  showLoginPage();
+}
+
+// ═══════════════════════════════════════════════
+// LOGIN
+// ═══════════════════════════════════════════════
+function showLoginPage() {
+  _loginSelectedUser = null;
+  var btnsEl = document.getElementById('login-user-btns');
+  btnsEl.innerHTML = '';
+  STATE.users.forEach(function(u, i) {
+    var btn = document.createElement('button');
+    btn.className = 'btn btn-secondary';
+    btn.style.cssText = 'flex:1;padding:14px 8px;font-size:15px;border-radius:8px;border:2px solid #e2e8f0;';
+    btn.textContent = u.name;
+    btn.setAttribute('onclick','selectLoginUser('+i+')');
+    btnsEl.appendChild(btn);
+  });
+  document.getElementById('login-pin-area').style.display = 'none';
+  document.getElementById('login-pin-input').value = '';
+  hideErr('login-err');
+  showPage('page-login');
+}
+
+function selectLoginUser(idx) {
+  _loginSelectedUser = idx;
+  var btns = document.querySelectorAll('#login-user-btns button');
+  for (var i = 0; i < btns.length; i++) {
+    btns[i].style.borderColor = i === idx ? '#2563eb' : '#e2e8f0';
+    btns[i].style.background = i === idx ? '#eff6ff' : '#f8fafc';
+    btns[i].style.color = i === idx ? '#2563eb' : '#334155';
+  }
+  document.getElementById('login-pin-label').textContent = 'Enter PIN for '+STATE.users[idx].name;
+  document.getElementById('login-pin-area').style.display = 'block';
+  document.getElementById('login-pin-input').value = '';
+  document.getElementById('login-pin-input').focus();
+  hideErr('login-err');
+}
+
+function doLogin() {
+  if (_loginSelectedUser === null) return;
+  hideErr('login-err');
+  var pin = getVal('login-pin-input').trim();
+  if (pin !== STATE.users[_loginSelectedUser].pin) {
+    showErr('login-err','Incorrect PIN. Try again.');
+    document.getElementById('login-pin-input').value = '';
+    return;
+  }
+  STATE.currentUser = _loginSelectedUser;
+  STATE.activeTab = 0;
+  document.getElementById('header-user').textContent = userName(STATE.currentUser);
+  showPage('page-app');
+  render();
+}
+
+function switchUser() {
+  STATE.currentUser = null;
+  showLoginPage();
+}
+
+// ═══════════════════════════════════════════════
+// TAB SWITCHING
+// ═══════════════════════════════════════════════
+function switchTab(idx) {
+  STATE.activeTab = idx;
+  render();
+}
+
+// ═══════════════════════════════════════════════
+// MASTER RENDER
+// ═══════════════════════════════════════════════
+function render() {
+  for (var i = 0; i < 4; i++) {
+    var tb = document.getElementById('tab-btn-'+i);
+    if (!tb) continue;
+    tb.style.borderBottomColor = i === STATE.activeTab ? '#2563eb' : 'transparent';
+    tb.style.color = i === STATE.activeTab ? '#2563eb' : '#64748b';
+  }
+  var el = document.getElementById('tab-content');
+  if (!el) return;
+  if (STATE.activeTab === 0) el.innerHTML = buildWishlist();
+  else if (STATE.activeTab === 1) el.innerHTML = buildPending();
+  else if (STATE.activeTab === 2) el.innerHTML = buildCompleted();
+  else el.innerHTML = buildReturn();
+}
+
+// ═══════════════════════════════════════════════
+// TAB 1 — WISHLIST
+// ═══════════════════════════════════════════════
+function buildWishlist() {
+  var h = '';
+  h += '<div style="font-size:17px;font-weight:700;margin-bottom:14px;color:#1e293b;">🌟 Wishlist</div>';
+
+  // Add form
+  h += '<div class="card">';
+  h += '<div style="font-size:15px;font-weight:600;margin-bottom:12px;color:#334155;">Add Restaurant</div>';
+  h += '<div style="margin-bottom:10px;"><label class="lbl">Restaurant Name</label><input id="w-name" class="inp" type="text" placeholder="e.g. Pasta Palace" maxlength="80"></div>';
+  h += '<div style="margin-bottom:10px;"><label class="lbl">Cuisine</label><select id="w-cuisine" class="inp">';
+  CUISINES.forEach(function(c){ h += '<option value="'+esc(c)+'">'+esc(c)+'</option>'; });
+  h += '</select></div>';
+  h += '<div style="margin-bottom:12px;"><label class="lbl">Notes (optional)</label><textarea id="w-notes" class="inp" rows="2" placeholder="Any notes..."></textarea></div>';
+  h += '<div id="w-err" class="err"></div>';
+  h += '<button class="btn btn-primary" onclick="addWishlistItem()">Add to Wishlist</button>';
+  h += '</div>';
+
+  if (STATE.wishlist.length === 0) {
+    h += '<div style="text-align:center;color:#94a3b8;padding:32px 0;">No restaurants on the wishlist yet.</div>';
+    return h;
+  }
+
+  // Sort: both scores first (by combined desc), then partial/none (by submitted score desc)
+  var list = STATE.wishlist.slice().sort(function(a, b) {
+    var aBoth = a.scores[0] !== null && a.scores[1] !== null;
+    var bBoth = b.scores[0] !== null && b.scores[1] !== null;
+    if (aBoth && !bBoth) return -1;
+    if (!aBoth && bBoth) return 1;
+    var sa = (a.scores[0]||0) + (a.scores[1]||0);
+    var sb = (b.scores[0]||0) + (b.scores[1]||0);
+    return sb - sa;
+  });
+
+  var medals = ['🥇','🥈','🥉'];
+  var bothCount = 0;
+
+  list.forEach(function(r) {
+    var bothScores = r.scores[0] !== null && r.scores[1] !== null;
+    var medalStr = '';
+    if (bothScores) {
+      if (bothCount < 3) medalStr = medals[bothCount] + ' ';
+      bothCount++;
+    }
+
+    h += '<div class="card">';
+    // Title + combined
+    h += '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:8px;">';
+    h += '<div><div style="font-size:15px;font-weight:700;color:#1e293b;">'+medalStr+esc(r.name)+'</div>';
+    h += '<div style="font-size:12px;color:#64748b;margin-top:2px;">'+esc(r.cuisine);
+    if (r.notes) h += ' · '+esc(r.notes);
+    h += '</div></div>';
+    if (bothScores) {
+      var combined = r.scores[0] + r.scores[1];
+      h += '<div style="font-size:13px;font-weight:700;color:#2563eb;white-space:nowrap;padding-top:2px;">Combined: '+combined+'/20</div>';
+    } else {
+      h += '<div class="tag tag-grey">Combined: ?</div>';
+    }
+    h += '</div>';
+    h += '<hr class="div">';
+
+    // Scores per user
+    h += '<div style="display:flex;gap:20px;flex-wrap:wrap;margin-bottom:14px;">';
+    [0,1].forEach(function(ui) {
+      var uname = userName(ui);
+      var score = r.scores[ui];
+      var isMe = STATE.currentUser === ui;
+      h += '<div>';
+      h += '<div style="font-size:12px;font-weight:600;color:#475569;margin-bottom:6px;">'+esc(uname)+(isMe?' <span style="color:#2563eb;">(you)</span>':'')+'</div>';
+      if (bothScores) {
+        // Both submitted — show real scores
+        h += '<div style="display:inline-flex;align-items:center;gap:5px;padding:4px 10px;background:#f0fdf4;border:1px solid #86efac;border-radius:5px;font-size:14px;font-weight:700;color:#16a34a;">'+score+'/10 ✅</div>';
+      } else if (score !== null) {
+        // Submitted but other hasn't — hide score
+        h += '<div style="display:inline-flex;align-items:center;gap:5px;padding:4px 10px;background:#f0fdf4;border:1px solid #86efac;border-radius:5px;font-size:14px;font-weight:700;color:#16a34a;">? /10 ✅</div>';
+      } else if (isMe) {
+        // Current user can submit
+        h += '<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">';
+        h += '<input type="number" min="1" max="10" value="5" id="wscore-'+esc(r.id)+'-'+ui+'" class="inp-sm">';
+        h += '<button class="btn btn-success btn-sm" onclick="lockWishScore(\''+esc(r.id)+'\','+ui+')">Submit Score</button>';
+        h += '</div>';
+        h += '<div id="wscore-err-'+esc(r.id)+'-'+ui+'" class="err"></div>';
+      } else {
+        h += '<div style="display:inline-flex;align-items:center;gap:5px;padding:4px 10px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:5px;font-size:13px;font-weight:600;color:#94a3b8;">⏳ Pending</div>';
+      }
+      h += '</div>';
+    });
+    h += '</div>';
+
+    // Actions
+    h += '<div style="display:flex;gap:8px;flex-wrap:wrap;">';
+    h += '<button class="btn btn-primary btn-sm" onclick="markVisited(\''+esc(r.id)+'\')">Mark as Visited</button>';
+    h += '<button class="btn btn-danger btn-sm" onclick="removeWishlist(\''+esc(r.id)+'\')">Remove</button>';
+    h += '</div>';
+    h += '</div>';
+  });
+
+  return h;
+}
+
+function addWishlistItem() {
+  hideErr('w-err');
+  var name = getVal('w-name').trim();
+  var cuisine = getVal('w-cuisine');
+  var notes = getVal('w-notes').trim();
+  if (!name) { showErr('w-err','Restaurant name is required.'); return; }
+  var low = name.toLowerCase();
+  var dup = false;
+  STATE.wishlist.forEach(function(r){ if(r.name.toLowerCase()===low) dup=true; });
+  STATE.pending.forEach(function(r){ if(r.name.toLowerCase()===low) dup=true; });
+  STATE.completed.forEach(function(r){ if(r.name.toLowerCase()===low) dup=true; });
+  if (dup) { showErr('w-err','This restaurant already exists in another list.'); return; }
+  STATE.wishlist.push({ id:uid(), name:name, cuisine:cuisine, notes:notes, scores:[null,null] });
+  saveState();
+  render();
+}
+
+function lockWishScore(id, ui) {
+  var errId = 'wscore-err-'+id+'-'+ui;
+  hideErr(errId);
+  if (STATE.currentUser !== ui) { showErr(errId,'You can only submit your own score.'); return; }
+  var val = getInt('wscore-'+id+'-'+ui);
+  if (isNaN(val) || val < 1 || val > 10) { showErr(errId,'Score must be 1–10.'); return; }
+  for (var i = 0; i < STATE.wishlist.length; i++) {
+    if (STATE.wishlist[i].id === id) {
+      if (STATE.wishlist[i].scores[ui] !== null) return; // already locked
+      STATE.wishlist[i].scores[ui] = val;
+      break;
+    }
+  }
+  saveState();
+  render();
+}
+
+function removeWishlist(id) {
+  if (!confirm('Remove this restaurant from the wishlist?')) return;
+  STATE.wishlist = STATE.wishlist.filter(function(r){ return r.id !== id; });
+  saveState();
+  render();
+}
+
+function markVisited(id) {
+  var found = null;
+  STATE.wishlist = STATE.wishlist.filter(function(r){
+    if (r.id === id) { found = r; return false; }
+    return true;
+  });
+  if (!found) return;
+  STATE.pending.push({
+    id: found.id,
+    name: found.name,
+    cuisine: found.cuisine,
+    notes: found.notes || '',
+    wishScores: found.scores,
+    reviews: [null, null]
+  });
+  saveState();
+  STATE.activeTab = 1;
+  render();
+}
+
+// ═══════════════════════════════════════════════
+// TAB 2 — PENDING REVIEW
+// ═══════════════════════════════════════════════
+function buildPending() {
+  var h = '';
+  h += '<div style="font-size:17px;font-weight:700;margin-bottom:14px;color:#1e293b;">⏳ Pending Review</div>';
+  if (STATE.pending.length === 0) {
+    h += '<div style="text-align:center;color:#94a3b8;padding:32px 0;">No restaurants pending review.</div>';
+    return h;
+  }
+
+  STATE.pending.forEach(function(r) {
+    var bothReviewed = r.reviews[0] !== null && r.reviews[1] !== null;
+    h += '<div class="card">';
+    h += '<div style="font-size:15px;font-weight:700;color:#1e293b;margin-bottom:2px;">'+esc(r.name)+'</div>';
+    h += '<div style="font-size:12px;color:#64748b;margin-bottom:14px;">'+esc(r.cuisine)+(r.notes?' · '+esc(r.notes):'')+'</div>';
+
+    [0,1].forEach(function(ui) {
+      var uname = userName(ui);
+      var isMe = STATE.currentUser === ui;
+      var review = r.reviews[ui];
+      if (ui === 1) h += '<hr class="div">';
+      h += '<div>';
+      h += '<div style="font-size:13px;font-weight:700;margin-bottom:8px;color:'+(isMe?'#2563eb':'#475569')+';">'+esc(uname)+(isMe?' (you)':'')+'</div>';
+
+      if (bothReviewed) {
+        h += buildReviewDisplay(review);
+      } else if (review !== null) {
+        // Submitted, waiting for other
+        h += '<div class="tag tag-green" style="font-size:13px;padding:6px 12px;">✅ Review Submitted — scores hidden until '+esc(userName(ui===0?1:0))+' also submits</div>';
+      } else if (isMe) {
+        h += buildReviewForm(r.id, ui);
+      } else {
+        h += '<div class="tag tag-amber">⏳ Awaiting '+esc(uname)+'\'s review</div>';
+      }
+
+      h += '</div>';
+    });
+
+    h += '</div>';
+  });
+
+  return h;
+}
+
+function buildReviewForm(id, ui) {
+  var h = '';
+  h += '<div style="background:#f8fafc;border-radius:8px;padding:12px;">';
+  h += '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:10px;">';
+  h += '<div><label class="lbl">Food /10</label><input id="food_'+esc(id)+'_'+ui+'" type="number" min="1" max="10" value="5" class="inp"></div>';
+  h += '<div><label class="lbl">Vibes /10</label><input id="vibes_'+esc(id)+'_'+ui+'" type="number" min="1" max="10" value="5" class="inp"></div>';
+  h += '<div><label class="lbl">Service /10</label><input id="service_'+esc(id)+'_'+ui+'" type="number" min="1" max="10" value="5" class="inp"></div>';
+  h += '</div>';
+  h += '<div style="margin-bottom:10px;"><label class="lbl">Favourite Dish</label><input id="favdish_'+esc(id)+'_'+ui+'" type="text" class="inp" placeholder="e.g. Truffle pasta" maxlength="80"></div>';
+  h += '<div style="margin-bottom:10px;display:flex;align-items:center;gap:8px;">';
+  h += '<input type="checkbox" id="wga_'+esc(id)+'_'+ui+'" checked style="width:16px;height:16px;cursor:pointer;">';
+  h += '<label for="wga_'+esc(id)+'_'+ui+'" style="font-size:13px;font-weight:600;color:#334155;cursor:pointer;">Would Go Again?</label>';
+  h += '</div>';
+  h += '<div id="rev-err-'+esc(id)+'-'+ui+'" class="err"></div>';
+  h += '<button class="btn btn-primary btn-sm" onclick="submitReview(\''+esc(id)+'\','+ui+')">Submit Review</button>';
+  h += '</div>';
+  return h;
+}
+
+function buildReviewDisplay(rv) {
+  if (!rv) return '';
+  var avg = ((rv.food + rv.vibes + rv.service) / 3).toFixed(1);
+  var h = '';
+  h += '<div style="background:#f8fafc;border-radius:8px;padding:10px 12px;">';
+  h += '<div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:6px;">';
+  h += '<span style="font-size:13px;color:#334155;">🍴 Food: <strong>'+rv.food+'/10</strong></span>';
+  h += '<span style="font-size:13px;color:#334155;">✨ Vibes: <strong>'+rv.vibes+'/10</strong></span>';
+  h += '<span style="font-size:13px;color:#334155;">💁 Service: <strong>'+rv.service+'/10</strong></span>';
+  h += '</div>';
+  h += '<div style="font-size:13px;font-weight:700;color:#2563eb;margin-bottom:4px;">Avg: '+avg+'/10</div>';
+  h += '<div style="font-size:13px;color:#334155;margin-bottom:4px;">Go again: <strong>'+(rv.wouldGoAgain?'✅ Yes':'❌ No')+'</strong></div>';
+  if (rv.favDish) h += '<div style="font-size:13px;color:#64748b;">Fav dish: <em>'+esc(rv.favDish)+'</em></div>';
+  h += '</div>';
+  return h;
+}
+
+function submitReview(id, ui) {
+  var errId = 'rev-err-'+id+'-'+ui;
+  hideErr(errId);
+  if (STATE.currentUser !== ui) { showErr(errId,'You can only submit your own review.'); return; }
+  var rIdx = -1;
+  for (var i = 0; i < STATE.pending.length; i++) {
+    if (STATE.pending[i].id === id) { rIdx = i; break; }
+  }
+  if (rIdx === -1) { showErr(errId,'Restaurant not found.'); return; }
+  if (STATE.pending[rIdx].reviews[ui] !== null) { render(); return; }
+
+  var food = getInt('food_'+id+'_'+ui);
+  var vibes = getInt('vibes_'+id+'_'+ui);
+  var service = getInt('service_'+id+'_'+ui);
+  var favDish = getVal('favdish_'+id+'_'+ui).trim();
+  var wga = getChecked('wga_'+id+'_'+ui);
+
+  if (isNaN(food)||food<1||food>10) { showErr(errId,'Food score must be 1–10.'); return; }
+  if (isNaN(vibes)||vibes<1||vibes>10) { showErr(errId,'Vibes score must be 1–10.'); return; }
+  if (isNaN(service)||service<1||service>10) { showErr(errId,'Service score must be 1–10.'); return; }
+
+  STATE.pending[rIdx].reviews[ui] = { food:food, vibes:vibes, service:service, wouldGoAgain:wga, favDish:favDish };
+
+  if (STATE.pending[rIdx].reviews[0] !== null && STATE.pending[rIdx].reviews[1] !== null) {
+    var done = STATE.pending.splice(rIdx, 1)[0];
+    STATE.completed.push(done);
+    saveState();
+    STATE.activeTab = 2;
+    render();
+  } else {
+    saveState();
+    render();
+  }
+}
+
+// ═══════════════════════════════════════════════
+// TAB 3 — COMPLETED
+// ═══════════════════════════════════════════════
+function calcOverall(r) {
+  var avgs = [];
+  for (var i = 0; i < 2; i++) {
+    var rv = r.reviews[i];
+    if (rv) avgs.push((rv.food + rv.vibes + rv.service) / 3);
+  }
+  return avgs.length ? avgs.reduce(function(a,b){return a+b;},0)/avgs.length : 0;
+}
+
+function buildCompleted() {
+  var h = '';
+  h += '<div style="font-size:17px;font-weight:700;margin-bottom:14px;color:#1e293b;">✅ Completed Reviews</div>';
+
+  if (STATE.completed.length === 0) {
+    h += '<div style="text-align:center;color:#94a3b8;padding:32px 0;">No completed reviews yet.</div>';
+    return h;
+  }
+
+  var sorted = STATE.completed.map(function(r){ return {r:r, overall:calcOverall(r)}; });
+  sorted.sort(function(a,b){ return b.overall - a.overall; });
+
+  // Stats
+  var total = sorted.length;
+  var avgAll = (sorted.reduce(function(s,x){return s+x.overall;},0)/total).toFixed(1);
+  var cc = {};
+  STATE.completed.forEach(function(r){ cc[r.cuisine]=(cc[r.cuisine]||0)+1; });
+  var topC = Object.keys(cc).sort(function(a,b){return cc[b]-cc[a];})[0]||'—';
+
+  h += '<div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;padding:14px;margin-bottom:16px;display:flex;gap:24px;flex-wrap:wrap;">';
+  h += '<div><div style="font-size:11px;font-weight:600;color:#2563eb;text-transform:uppercase;">Visited</div><div style="font-size:24px;font-weight:700;">'+total+'</div></div>';
+  h += '<div><div style="font-size:11px;font-weight:600;color:#2563eb;text-transform:uppercase;">Avg Score</div><div style="font-size:24px;font-weight:700;">'+avgAll+'/10</div></div>';
+  h += '<div><div style="font-size:11px;font-weight:600;color:#2563eb;text-transform:uppercase;">Top Cuisine</div><div style="font-size:24px;font-weight:700;">'+esc(topC)+'</div></div>';
+  h += '</div>';
+
+  var medals = ['🥇','🥈','🥉'];
+
+  sorted.forEach(function(item, idx) {
+    var r = item.r;
+    var overall = item.overall;
+    var rv0 = r.reviews[0];
+    var rv1 = r.reviews[1];
+    var bothReturn = rv0 && rv1 && rv0.wouldGoAgain && rv1.wouldGoAgain;
+
+    h += '<div class="card">';
+    h += '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:8px;">';
+    h += '<div><div style="font-size:15px;font-weight:700;color:#1e293b;">'+(idx<3?medals[idx]+' ':'')+esc(r.name)+'</div>';
+    h += '<div style="font-size:12px;color:#64748b;margin-top:2px;">'+esc(r.cuisine)+'</div></div>';
+    h += '<div style="font-size:16px;font-weight:700;color:#2563eb;">'+overall.toFixed(1)+'/10</div>';
+    h += '</div>';
+
+    if (bothReturn) {
+      h += '<div style="font-size:13px;color:#16a34a;font-weight:600;margin-bottom:10px;">💚 Both would return!</div>';
+    }
+
+    h += '<hr class="div">';
+    h += '<div style="display:flex;gap:10px;flex-wrap:wrap;">';
+
+    [0,1].forEach(function(ui) {
+      var rv = r.reviews[ui];
+      if (!rv) return;
+      var avg = ((rv.food+rv.vibes+rv.service)/3).toFixed(1);
+      h += '<div style="flex:1;min-width:140px;background:#f8fafc;border-radius:8px;padding:10px;">';
+      h += '<div style="font-size:12px;font-weight:700;color:#475569;margin-bottom:6px;">'+esc(userName(ui))+'</div>';
+      h += '<div style="font-size:13px;color:#334155;margin-bottom:3px;">🍴 Food: <strong>'+rv.food+'/10</strong></div>';
+      h += '<div style="font-size:13px;color:#334155;margin-bottom:3px;">✨ Vibes: <strong>'+rv.vibes+'/10</strong></div>';
+      h += '<div style="font-size:13px;color:#334155;margin-bottom:3px;">💁 Service: <strong>'+rv.service+'/10</strong></div>';
+      h += '<div style="font-size:13px;font-weight:700;color:#2563eb;margin-bottom:3px;">Avg: '+avg+'/10</div>';
+      h += '<div style="font-size:13px;color:#334155;margin-bottom:3px;">Return: '+(rv.wouldGoAgain?'✅ Yes':'❌ No')+'</div>';
+      if (rv.favDish) h += '<div style="font-size:12px;color:#64748b;">Fav: <em>'+esc(rv.favDish)+'</em></div>';
+      h += '</div>';
+    });
+
+    h += '</div></div>';
+  });
+
+  return h;
+}
+
+// ═══════════════════════════════════════════════
+// TAB 4 — WE'D RETURN
+// ═══════════════════════════════════════════════
+function buildReturn() {
+  var h = '';
+  h += '<div style="font-size:17px;font-weight:700;margin-bottom:6px;color:#1e293b;">💚 We\'d Return</div>';
+  h += '<div style="font-size:13px;color:#64748b;margin-bottom:16px;">Restaurants where both of you said \'Yes\' to Would Go Again, ranked by combined review score.</div>';
+
+  // Filter: both reviews exist and both said yes
+  var list = STATE.completed.filter(function(r) {
+    var rv0 = r.reviews[0];
+    var rv1 = r.reviews[1];
+    return rv0 && rv1 && rv0.wouldGoAgain && rv1.wouldGoAgain;
+  });
+
+  if (list.length === 0) {
+    h += '<div style="text-align:center;color:#94a3b8;padding:32px 0;">No restaurants here yet — complete reviews where both of you would return!</div>';
+    return h;
+  }
+
+  // Sort by combined avg score (out of 20 = sum of two per-user averages, each /10)
+  list = list.map(function(r) {
+    var rv0 = r.reviews[0], rv1 = r.reviews[1];
+    var avg0 = (rv0.food + rv0.vibes + rv0.service) / 3;
+    var avg1 = (rv1.food + rv1.vibes + rv1.service) / 3;
+    var combined = avg0 + avg1; // out of 20
+    return { r:r, avg0:avg0, avg1:avg1, combined:combined };
+  });
+  list.sort(function(a,b){ return b.combined - a.combined; });
+
+  var medals = ['🥇','🥈','🥉'];
+
+  list.forEach(function(item, idx) {
+    var r = item.r;
+    h += '<div class="card" style="display:flex;align-items:center;gap:12px;">';
+
+    // Medal / rank
+    h += '<div style="font-size:24px;min-width:32px;text-align:center;">'+(idx<3?medals[idx]:'#'+(idx+1))+'</div>';
+
+    // Main info
+    h += '<div style="flex:1;min-width:0;">';
+    h += '<div style="font-size:15px;font-weight:700;color:#1e293b;">'+esc(r.name)+'</div>';
+    h += '<div style="margin-top:3px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">';
+    h += '<span class="tag tag-blue">'+esc(r.cuisine)+'</span>';
+    h += '<span style="font-size:13px;font-weight:700;color:#2563eb;">'+item.combined.toFixed(1)+'/20</span>';
+    h += '</div>';
+    // Fav dishes
+    var dishes = [];
+    if (r.reviews[0] && r.reviews[0].favDish) dishes.push(esc(userName(0))+': <em>'+esc(r.reviews[0].favDish)+'</em>');
+    if (r.reviews[1] && r.reviews[1].favDish) dishes.push(esc(userName(1))+': <em>'+esc(r.reviews[1].favDish)+'</em>');
+    if (dishes.length) {
+      h += '<div style="font-size:12px;color:#64748b;margin-top:4px;">🍴 '+dishes.join(' &nbsp;·&nbsp; ')+'</div>';
+    }
+    h += '</div>';
+
+    // Score pill
+    h += '<div style="text-align:right;white-space:nowrap;">';
+    h += '<div style="font-size:11px;font-weight:600;color:#94a3b8;text-transform:uppercase;margin-bottom:2px;">Score</div>';
+    h += '<div style="font-size:18px;font-weight:700;color:#16a34a;">'+item.combined.toFixed(1)+'</div>';
+    h += '<div style="font-size:11px;color:#94a3b8;">out of 20</div>';
+    h += '</div>';
+
+    h += '</div>';
+  });
+
+  return h;
+}
+
+// ═══════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════
+(function init() {
+  loadState();
+  if (!STATE.users || !Array.isArray(STATE.users) || STATE.users.length < 2) {
+    showPage('page-setup');
+    return;
+  }
+  showLoginPage();
+})();
+</script>
+</body>
+</html>
