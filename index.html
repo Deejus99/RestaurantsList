@@ -1,9 +1,10 @@
-<<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>🍽️ Restaurant Tracker</title>
+<link rel="manifest" href="/manifest.json">
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   :root {
@@ -23,18 +24,12 @@
     --radius: 10px;
   }
   body { font-family: 'Georgia', serif; background: var(--cream); color: var(--text); min-height: 100vh; }
-  
-  /* LAYOUT */
   #app { max-width: 900px; margin: 0 auto; padding: 0 12px 40px; }
-  
-  /* HEADER */
   header { background: var(--burgundy); color: var(--cream); padding: 16px 20px; border-radius: 0 0 var(--radius) var(--radius); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; box-shadow: var(--shadow); }
   header h1 { font-size: 1.4rem; letter-spacing: 0.5px; }
   header h1 span { color: var(--gold); }
   #user-info { display: flex; align-items: center; gap: 10px; font-size: 0.85rem; }
   #user-info span { background: rgba(212,175,55,0.2); padding: 4px 10px; border-radius: 20px; border: 1px solid var(--gold); }
-  
-  /* BUTTONS */
   button { cursor: pointer; border: none; border-radius: 6px; font-family: 'Georgia', serif; transition: all 0.2s; }
   .btn { padding: 8px 16px; font-size: 0.85rem; }
   .btn-primary { background: var(--burgundy); color: var(--cream); }
@@ -49,40 +44,25 @@
   .btn-switch { background: rgba(255,255,255,0.15); color: var(--cream); border: 1px solid rgba(255,255,255,0.3); padding: 5px 12px; font-size: 0.8rem; border-radius: 20px; }
   .btn-switch:hover { background: rgba(255,255,255,0.25); }
   button:disabled { opacity: 0.5; cursor: not-allowed; }
-  
-  /* TABS */
   #tabs { display: flex; gap: 4px; margin: 20px 0 0; background: var(--cream-dark); padding: 6px; border-radius: var(--radius); border: 1px solid var(--border); }
   .tab-btn { flex: 1; padding: 9px 6px; font-size: 0.78rem; background: transparent; color: var(--text-light); border-radius: 6px; text-align: center; transition: all 0.2s; line-height: 1.3; }
   .tab-btn:hover { background: rgba(107,45,62,0.1); color: var(--burgundy); }
   .tab-btn.active { background: var(--burgundy); color: var(--cream); font-weight: bold; }
-  
-  /* CARDS */
   .card { background: white; border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; margin-bottom: 12px; box-shadow: var(--shadow); }
   .card-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; flex-wrap: wrap; }
   .card-title { font-size: 1.05rem; font-weight: bold; color: var(--burgundy); }
   .card-sub { font-size: 0.8rem; color: var(--text-light); margin-top: 2px; }
   .badge { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: 0.72rem; background: var(--cream-dark); color: var(--text-light); border: 1px solid var(--border); }
-  .badge-gold { background: rgba(212,175,55,0.2); color: #7A5C00; border-color: var(--gold); }
-  
-  /* FORMS */
   .form-group { margin-bottom: 14px; }
   label { display: block; font-size: 0.82rem; color: var(--text-light); margin-bottom: 4px; font-weight: bold; }
-  input[type=text], input[type=number], input[type=password], textarea, select {
-    width: 100%; padding: 8px 10px; border: 1px solid var(--border); border-radius: 6px;
-    font-family: 'Georgia', serif; font-size: 0.88rem; background: var(--cream); color: var(--text);
-    transition: border-color 0.2s;
-  }
+  input[type=text], input[type=number], input[type=password], textarea, select { width: 100%; padding: 8px 10px; border: 1px solid var(--border); border-radius: 6px; font-family: 'Georgia', serif; font-size: 0.88rem; background: var(--cream); color: var(--text); transition: border-color 0.2s; }
   input:focus, textarea:focus, select:focus { outline: none; border-color: var(--burgundy); }
   input:disabled, textarea:disabled, select:disabled { background: #f0f0f0; color: var(--locked); cursor: not-allowed; }
   textarea { resize: vertical; min-height: 60px; }
-  
-  /* FORM BOX */
   .form-box { background: var(--cream-dark); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; margin-bottom: 20px; }
   .form-box h3 { font-size: 0.95rem; color: var(--burgundy); margin-bottom: 12px; }
   .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
   @media(max-width: 500px) { .form-row { grid-template-columns: 1fr; } }
-  
-  /* SCORE SECTION */
   .scores-section { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
   @media(max-width: 480px) { .scores-section { grid-template-columns: 1fr; } }
   .score-box { background: var(--cream-dark); border: 1px solid var(--border); border-radius: 8px; padding: 10px; }
@@ -91,8 +71,6 @@
   .score-display.hidden-score { color: var(--locked); }
   .score-input-row { display: flex; align-items: center; gap: 6px; }
   .score-input-row input { width: 60px; text-align: center; }
-  
-  /* REVIEW SECTION */
   .review-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px; }
   @media(max-width: 520px) { .review-grid { grid-template-columns: 1fr; } }
   .review-col { background: var(--cream-dark); border: 1px solid var(--border); border-radius: 8px; padding: 12px; }
@@ -100,27 +78,19 @@
   .review-col.locked { opacity: 0.75; }
   .review-field { margin-bottom: 8px; font-size: 0.82rem; }
   .review-field label { color: var(--text-light); margin-bottom: 2px; }
-  
-  /* LEADERBOARD */
   .rank-card { position: relative; }
   .rank-num { position: absolute; top: 12px; right: 14px; font-size: 1.5rem; }
   .combined-score { display: inline-block; background: var(--burgundy); color: var(--cream); padding: 3px 10px; border-radius: 20px; font-size: 0.85rem; font-weight: bold; margin-top: 4px; }
-  
-  /* STATS */
   .stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
   @media(max-width: 480px) { .stats-row { grid-template-columns: 1fr; } }
   .stat-box { background: var(--burgundy); color: var(--cream); border-radius: var(--radius); padding: 14px; text-align: center; }
   .stat-num { font-size: 1.6rem; font-weight: bold; color: var(--gold); }
   .stat-label { font-size: 0.75rem; opacity: 0.85; margin-top: 2px; }
-  
-  /* ALERTS & BANNERS */
   .banner { padding: 8px 14px; border-radius: 6px; font-size: 0.82rem; margin-bottom: 10px; }
   .banner-info { background: rgba(212,175,55,0.15); border: 1px solid var(--gold); color: #7A5C00; }
   .banner-success { background: rgba(45,107,62,0.1); border: 1px solid #2D6B3E; color: var(--success); }
   .banner-error { background: rgba(139,26,26,0.1); border: 1px solid #8B1A1A; color: var(--error); }
   .banner-waiting { background: rgba(107,45,62,0.08); border: 1px solid var(--burgundy); color: var(--burgundy); }
-  
-  /* LOADING */
   #loading { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(255,248,240,0.85); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 1000; gap: 14px; }
   .spinner { width: 40px; height: 40px; border: 4px solid var(--cream-dark); border-top-color: var(--burgundy); border-radius: 50%; animation: spin 0.7s linear infinite; }
   @keyframes spin { to { transform: rotate(360deg); } }
@@ -132,9 +102,6 @@
   #loading-steps-list li.active { color: var(--burgundy); font-weight: bold; }
   #loading-steps-list li.pending { color: #bbb; }
   #status-indicator { position: fixed; bottom: 14px; right: 14px; font-size: 0.75rem; background: white; border: 1px solid var(--border); border-radius: 20px; padding: 4px 10px; box-shadow: var(--shadow); z-index: 500; display: none; }
- 
-  
-  /* SETUP / LOGIN SCREENS */
   .screen { min-height: 80vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
   .screen-card { background: white; border: 1px solid var(--border); border-radius: 14px; padding: 28px; width: 100%; max-width: 420px; box-shadow: var(--shadow); }
   .screen-card h2 { color: var(--burgundy); font-size: 1.3rem; margin-bottom: 6px; }
@@ -149,8 +116,6 @@
   .setup-step { margin-bottom: 22px; padding-bottom: 22px; border-bottom: 1px solid var(--border); }
   .setup-step:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
   .setup-step h3 { color: var(--burgundy); font-size: 0.95rem; margin-bottom: 10px; }
-  
-  /* MISC */
   .empty-state { text-align: center; padding: 40px 20px; color: var(--text-light); font-size: 0.9rem; }
   .empty-state span { font-size: 2.5rem; display: block; margin-bottom: 10px; }
   .divider { border: none; border-top: 1px solid var(--border); margin: 14px 0; }
@@ -164,6 +129,17 @@
   .would-yes { color: var(--success); font-weight: bold; }
   .would-no { color: var(--error); }
   #error-toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #8B1A1A; color: white; padding: 10px 20px; border-radius: 8px; font-size: 0.85rem; z-index: 999; display: none; box-shadow: 0 4px 12px rgba(0,0,0,0.2); max-width: 90%; text-align: center; }
+  .notif-wrapper { position: relative; }
+  .notif-bell { cursor: pointer; font-size: 1.3rem; position: relative; display: inline-block; padding: 4px 6px; }
+  .notif-badge { position: absolute; top: -2px; right: -2px; background: #8B1A1A; color: white; border-radius: 50%; font-size: 0.62rem; width: 17px; height: 17px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-family: sans-serif; }
+  .notif-dropdown { position: absolute; right: 0; top: 44px; width: 300px; background: white; border-radius: 10px; box-shadow: 0 8px 28px rgba(0,0,0,0.18); z-index: 9999; max-height: 380px; overflow-y: auto; border: 1px solid var(--border); }
+  .notif-dropdown-header { padding: 10px 14px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+  .notif-dropdown-header strong { font-size: 0.88rem; color: var(--burgundy); }
+  .notif-mark-read { font-size: 0.72rem; color: var(--burgundy); background: none; border: none; cursor: pointer; text-decoration: underline; font-family: Georgia, serif; }
+  .notif-item { padding: 10px 14px; border-bottom: 1px solid #f5ede0; font-size: 0.8rem; line-height: 1.4; }
+  .notif-item.unread { background: rgba(212,175,55,0.08); }
+  .notif-item-time { font-size: 0.7rem; color: var(--text-light); margin-top: 3px; }
+  .notif-empty { padding: 20px; text-align: center; color: var(--text-light); font-size: 0.82rem; }
 </style>
 </head>
 <body>
@@ -179,105 +155,50 @@
   </ul>
   <div style="margin-top:16px;width:92vw;max-width:600px;">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
-      <span style="font-size:0.78rem;font-weight:bold;color:#6B2D3E;">🐛 Debug Log (latest first)</span>
+      <span style="font-size:0.78rem;font-weight:bold;color:#6B2D3E;">🐛 Debug Log</span>
       <button onclick="document.getElementById('debug-panel').innerHTML=''" style="font-size:0.72rem;padding:2px 8px;cursor:pointer;border:1px solid #ccc;border-radius:4px;background:#fff;">Clear</button>
     </div>
     <div id="debug-panel" style="background:#fff;border:1px solid #ccc;border-radius:6px;padding:8px;font-size:0.75rem;font-family:monospace;max-height:220px;overflow-y:auto;color:#222;text-align:left;"></div>
-    <div style="margin-top:6px;font-size:0.72rem;color:#888;word-break:break-all;">
-      <strong>URL:</strong> https://oofjwdtcasmderyduzki.supabase.co/rest/v1/<br>
-      <strong>Key (first 40 chars):</strong> eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3M…
-    </div>
   </div>
 </div>
- 
+
 <div id="status-indicator">🟢 Connected</div>
- 
-
 <div id="error-toast"></div>
-
 <div id="app" style="display:none;"></div>
 
 <script>
-// ─────────────────────────────────────────
-// SUPABASE CONFIG
-// ─────────────────────────────────────────
 const SUPA_URL = 'https://oofjwdtcasmderyduzki.supabase.co';
 const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9vZmp3ZHRjYXNtZGVyeWR1emtpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkzOTQ3OTgsImV4cCI6MjEwNDk3MDc5OH0.H18m3Ooip-At6jZlIngac26EB5_cL2LMLwEIX7csHkY';
 const SUPA_REST = SUPA_URL + '/rest/v1/';
 
-const HEADERS = {
-  'apikey': SUPA_KEY,
-  'Authorization': 'Bearer ' + SUPA_KEY,
-  'Content-Type': 'application/json',
-  'Prefer': 'return=representation'
-};
- 
-
-// ─────────────────────────────────────────
-// STATE
-// ─────────────────────────────────────────
 const STATE = {
-  currentUser: null,
-  users: [],
-  wishlist: [],
-  desireScores: [],
-  pendingReviews: [],
-  reviews: [],
-  completedReviews: [],
-  activeTab: 0,
-  loginSelectedUser: null,
-  loading: false
+  currentUser: null, users: [], wishlist: [], desireScores: [],
+  pendingReviews: [], reviews: [], completedReviews: [],
+  activeTab: 0, loginSelectedUser: null, loading: false
 };
 
-// ─────────────────────────────────────────
-// SESSION STORAGE HELPERS
-// ─────────────────────────────────────────
-function getSession(key) {
-  try { return sessionStorage.getItem(key); } catch(e) { return null; }
-}
-function setSession(key, val) {
-  try { sessionStorage.setItem(key, val); } catch(e) {}
-}
-function clearSession(key) {
-  try { sessionStorage.removeItem(key); } catch(e) {}
-}
+function getSession(key) { try { return sessionStorage.getItem(key); } catch(e) { return null; } }
+function setSession(key, val) { try { sessionStorage.setItem(key, val); } catch(e) {} }
+function clearSession(key) { try { sessionStorage.removeItem(key); } catch(e) {} }
 
-// ─────────────────────────────────────────
-// DEBUG PANEL HELPERS
-// ─────────────────────────────────────────
 function debugLog(method, url, status, body) {
   const panel = document.getElementById('debug-panel');
   if (!panel) return;
   const entry = document.createElement('div');
   entry.style.cssText = 'border-bottom:1px solid #ccc;padding:4px 0;word-break:break-all;';
   const color = (!status || status >= 400) ? '#c00' : '#060';
-  entry.innerHTML =
-    '<span style="font-weight:bold;color:' + color + ';">' + method + ' ' + status + '</span> ' +
-    '<span style="color:#444;">' + url + '</span>' +
-    (body ? '<pre style="margin:2px 0 0;font-size:0.72rem;white-space:pre-wrap;color:#333;">' + body.slice(0, 400) + '</pre>' : '');
+  entry.innerHTML = '<span style="font-weight:bold;color:' + color + ';">' + method + ' ' + status + '</span> <span style="color:#444;">' + url + '</span>' + (body ? '<pre style="margin:2px 0 0;font-size:0.72rem;white-space:pre-wrap;color:#333;">' + body.slice(0,400) + '</pre>' : '');
   panel.insertBefore(entry, panel.firstChild);
 }
 
-// ─────────────────────────────────────────
-// API HELPERS
-// ─────────────────────────────────────────
-async function dbGet(table, query = '') {
+async function dbGet(table, query='') {
   const url = SUPA_REST + table + (query ? '?' + query : '');
   let res, bodyText;
   try {
-    res = await fetch(url, {
-      headers: {
-        'apikey': SUPA_KEY,
-        'Authorization': 'Bearer ' + SUPA_KEY,
-        'Content-Type': 'application/json'
-      }
-    });
+    res = await fetch(url, { headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY, 'Content-Type': 'application/json' } });
     bodyText = await res.text();
     debugLog('GET', url, res.status, bodyText);
-  } catch(e) {
-    debugLog('GET', url, 'NETWORK_ERROR', e.message);
-    throw new Error('GET ' + table + ' network error: ' + e.message);
-  }
+  } catch(e) { debugLog('GET', url, 'NETWORK_ERROR', e.message); throw new Error('GET ' + table + ' network error: ' + e.message); }
   if (!res.ok) throw new Error('GET ' + table + ' failed: ' + res.status + ' — ' + bodyText);
   return JSON.parse(bodyText);
 }
@@ -286,22 +207,10 @@ async function dbInsert(table, data) {
   const url = SUPA_REST + table;
   let res, bodyText;
   try {
-    res = await fetch(url, {
-      method: 'POST',
-      headers: {
-        'apikey': SUPA_KEY,
-        'Authorization': 'Bearer ' + SUPA_KEY,
-        'Content-Type': 'application/json',
-        'Prefer': 'return=representation'
-      },
-      body: JSON.stringify(data)
-    });
+    res = await fetch(url, { method: 'POST', headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=representation' }, body: JSON.stringify(data) });
     bodyText = await res.text();
     debugLog('POST', url, res.status, bodyText);
-  } catch(e) {
-    debugLog('POST', url, 'NETWORK_ERROR', e.message);
-    throw new Error('INSERT ' + table + ' network error: ' + e.message);
-  }
+  } catch(e) { debugLog('POST', url, 'NETWORK_ERROR', e.message); throw new Error('INSERT ' + table + ' network error: ' + e.message); }
   if (!res.ok) throw new Error('INSERT ' + table + ' failed: ' + res.status + ' — ' + bodyText);
   return JSON.parse(bodyText);
 }
@@ -310,22 +219,10 @@ async function dbUpdate(table, query, data) {
   const url = SUPA_REST + table + '?' + query;
   let res, bodyText;
   try {
-    res = await fetch(url, {
-      method: 'PATCH',
-      headers: {
-        'apikey': SUPA_KEY,
-        'Authorization': 'Bearer ' + SUPA_KEY,
-        'Content-Type': 'application/json',
-        'Prefer': 'return=representation'
-      },
-      body: JSON.stringify(data)
-    });
+    res = await fetch(url, { method: 'PATCH', headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=representation' }, body: JSON.stringify(data) });
     bodyText = await res.text();
     debugLog('PATCH', url, res.status, bodyText);
-  } catch(e) {
-    debugLog('PATCH', url, 'NETWORK_ERROR', e.message);
-    throw new Error('UPDATE ' + table + ' network error: ' + e.message);
-  }
+  } catch(e) { debugLog('PATCH', url, 'NETWORK_ERROR', e.message); throw new Error('UPDATE ' + table + ' network error: ' + e.message); }
   if (!res.ok) throw new Error('UPDATE ' + table + ' failed: ' + res.status + ' — ' + bodyText);
   return JSON.parse(bodyText);
 }
@@ -334,86 +231,30 @@ async function dbDelete(table, query) {
   const url = SUPA_REST + table + '?' + query;
   let res, bodyText;
   try {
-    res = await fetch(url, {
-      method: 'DELETE',
-      headers: {
-        'apikey': SUPA_KEY,
-        'Authorization': 'Bearer ' + SUPA_KEY,
-        'Content-Type': 'application/json',
-        'Prefer': 'return=representation'
-      }
-    });
+    res = await fetch(url, { method: 'DELETE', headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=representation' } });
     bodyText = await res.text();
     debugLog('DELETE', url, res.status, bodyText);
-  } catch(e) {
-    debugLog('DELETE', url, 'NETWORK_ERROR', e.message);
-    throw new Error('DELETE ' + table + ' network error: ' + e.message);
-  }
+  } catch(e) { debugLog('DELETE', url, 'NETWORK_ERROR', e.message); throw new Error('DELETE ' + table + ' network error: ' + e.message); }
   if (!res.ok) throw new Error('DELETE ' + table + ' failed: ' + res.status + ' — ' + bodyText);
   return true;
 }
- 
 
-// ─────────────────────────────────────────
-// ERROR / LOADING UI
-// ─────────────────────────────────────────
-function showLoading(v) {
-  const el = document.getElementById('loading');
-  if (!el) return;
-  el.style.display = v ? 'flex' : 'none';
-  if (v) {
-    // Reset steps to initial state whenever loading is shown for a sub-operation
-    const spinner = document.getElementById('loading-spinner');
-    if (spinner) spinner.style.display = 'block';
-  }
-}
+function showLoading(v) { const el = document.getElementById('loading'); if (el) el.style.display = v ? 'flex' : 'none'; }
+function showError(msg) { const t = document.getElementById('error-toast'); t.textContent = msg; t.style.display = 'block'; setTimeout(() => { t.style.display = 'none'; }, 4000); }
 
-function showError(msg) {
-  const t = document.getElementById('error-toast');
-  t.textContent = msg;
-  t.style.display = 'block';
-  setTimeout(() => { t.style.display = 'none'; }, 4000);
-}
-
-// ─────────────────────────────────────────
-// LOADING STEP TRACKER
-// ─────────────────────────────────────────
-const LOAD_STEPS = ['connect', 'users', 'wishlist', 'restaurants'];
-
+const LOAD_STEPS = ['connect','users','wishlist','restaurants'];
 function setLoadStep(stepId) {
   LOAD_STEPS.forEach(s => {
-    const el = document.getElementById(`lstep-${s}`);
+    const el = document.getElementById('lstep-' + s);
     if (!el) return;
-    if (s === stepId) {
-      el.className = 'active';
-    } else if (LOAD_STEPS.indexOf(s) < LOAD_STEPS.indexOf(stepId)) {
-      el.className = 'done';
-      el.textContent = el.textContent.replace('⏳', '✅');
-    } else {
-      el.className = 'pending';
-    }
+    if (s === stepId) { el.className = 'active'; }
+    else if (LOAD_STEPS.indexOf(s) < LOAD_STEPS.indexOf(stepId)) { el.className = 'done'; el.textContent = el.textContent.replace('⏳','✅'); }
+    else { el.className = 'pending'; }
   });
-  const stepEl = document.getElementById('loading-step');
-  const labels = {
-    connect: 'Connecting to database…',
-    users: 'Loading users…',
-    wishlist: 'Loading wishlist…',
-    restaurants: 'Loading restaurants & reviews…'
-  };
-  if (stepEl && labels[stepId]) stepEl.textContent = labels[stepId];
 }
-
 function markAllStepsDone() {
-  LOAD_STEPS.forEach(s => {
-    const el = document.getElementById(`lstep-${s}`);
-    if (!el) return;
-    el.className = 'done';
-    if (!el.textContent.startsWith('✅')) {
-      el.textContent = el.textContent.replace('⏳', '✅');
-    }
-  });
+  LOAD_STEPS.forEach(s => { const el = document.getElementById('lstep-' + s); if (!el) return; el.className = 'done'; if (!el.textContent.startsWith('✅')) el.textContent = el.textContent.replace('⏳','✅'); });
 }
-
 function setConnectionStatus(connected) {
   const ind = document.getElementById('status-indicator');
   if (!ind) return;
@@ -422,83 +263,42 @@ function setConnectionStatus(connected) {
   ind.style.borderColor = connected ? '#2D6B3E' : '#8B1A1A';
   ind.style.color = connected ? '#2D6B3E' : '#8B1A1A';
 }
-
-function showFatalError(msg, showRetry = true) {
-  showLoading(false);
-  setConnectionStatus(false);
+function showFatalError(msg, showRetry=true) {
+  showLoading(false); setConnectionStatus(false);
   document.getElementById('app').style.display = 'block';
-  document.getElementById('app').innerHTML = `
-    <div class="screen">
-      <div class="screen-card">
-        <h2>⚠️ Connection Error</h2>
-        <p style="color:var(--error);margin-bottom:10px;">${esc(msg)}</p>
-        <p style="font-size:0.8rem;color:var(--text-light);">Please check your internet connection or Supabase project status, then try again.</p>
-        ${showRetry ? `<button class="btn btn-primary" style="margin-top:14px;" onclick="init()">🔄 Retry Connection</button>` : ''}
-      </div>
-    </div>`;
+  document.getElementById('app').innerHTML = '<div class="screen"><div class="screen-card"><h2>⚠️ Connection Error</h2><p style="color:var(--error);margin-bottom:10px;">' + esc(msg) + '</p><p style="font-size:0.8rem;color:var(--text-light);">Please check your internet connection or Supabase project status, then try again.</p>' + (showRetry ? '<button class="btn btn-primary" style="margin-top:14px;" onclick="init()">🔄 Retry Connection</button>' : '') + '</div></div>';
 }
-
-// Timeout-aware fetch wrapper for Supabase calls
-function withTimeout(promise, ms = 10000) {
+function withTimeout(promise, ms=10000) {
   return new Promise((resolve, reject) => {
-    const timer = setTimeout(() => {
-      reject(new Error(`Request timed out after ${ms / 1000} seconds. Supabase may be unreachable.`));
-    }, ms);
-    promise.then(
-      val => { clearTimeout(timer); resolve(val); },
-      err => { clearTimeout(timer); reject(err); }
-    );
+    const timer = setTimeout(() => reject(new Error('Request timed out after ' + ms/1000 + ' seconds.')), ms);
+    promise.then(val => { clearTimeout(timer); resolve(val); }, err => { clearTimeout(timer); reject(err); });
   });
 }
- 
 
-// ─────────────────────────────────────────
-// GENERATE UUID
-// ─────────────────────────────────────────
 function uuid() {
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
-    const r = Math.random() * 16 | 0;
-    return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
-  });
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => { const r = Math.random()*16|0; return (c==='x'?r:(r&0x3|0x8)).toString(16); });
 }
 
-// ─────────────────────────────────────────
-// LOAD ALL DATA
-// ─────────────────────────────────────────
-async function loadAllData(trackSteps = false) {
-  if (trackSteps) {
-    setLoadStep('connect');
-    // Small pause so the user sees the "Connecting" step visually
-    await new Promise(r => setTimeout(r, 200));
-  }
-
+async function loadAllData(trackSteps=false) {
+  if (trackSteps) { setLoadStep('connect'); await new Promise(r => setTimeout(r, 200)); }
   try {
     if (trackSteps) setLoadStep('users');
-    const users = await withTimeout(dbGet('users', 'order=created_at.asc'));
-    STATE.users = users || [];
-
+    STATE.users = (await withTimeout(dbGet('users','order=created_at.asc'))) || [];
     if (trackSteps) setLoadStep('wishlist');
-    const wishlist = await withTimeout(dbGet('wishlist', 'order=created_at.asc'));
-    STATE.wishlist = wishlist || [];
-
+    STATE.wishlist = (await withTimeout(dbGet('wishlist','order=created_at.asc'))) || [];
     if (trackSteps) setLoadStep('restaurants');
-    const [desireScores, pendingReviews, reviews] = await withTimeout(Promise.all([
-      dbGet('desire_scores', 'order=created_at.asc'),
-      dbGet('pending_reviews', 'order=created_at.asc'),
-      dbGet('reviews', 'order=created_at.asc')
+    const [ds, pr, rv] = await withTimeout(Promise.all([
+      dbGet('desire_scores','order=created_at.asc'),
+      dbGet('pending_reviews','order=created_at.asc'),
+      dbGet('reviews','order=created_at.asc')
     ]));
-    STATE.desireScores = desireScores || [];
-    STATE.pendingReviews = pendingReviews || [];
-    STATE.reviews = reviews || [];
-
+    STATE.desireScores = ds || [];
+    STATE.pendingReviews = pr || [];
+    STATE.reviews = rv || [];
     if (trackSteps) markAllStepsDone();
-  } catch (e) {
-    throw e;
-  }
+  } catch(e) { throw e; }
 }
- 
 
-// Separate completed reviews = pending_reviews that have reviews from BOTH users
 function getCompletedRestaurants() {
   if (STATE.users.length < 2) return [];
   const [u1, u2] = STATE.users;
@@ -507,746 +307,429 @@ function getCompletedRestaurants() {
     return rr.some(r => r.user_name === u1.name) && rr.some(r => r.user_name === u2.name);
   });
 }
-
 function getPendingOnly() {
   const completed = getCompletedRestaurants().map(c => c.id);
   return STATE.pendingReviews.filter(pr => !completed.includes(pr.id));
 }
 
-// ─────────────────────────────────────────
-// MAIN RENDER
-// ─────────────────────────────────────────
 function render() {
   const app = document.getElementById('app');
   if (!app) return;
-
-  // Not logged in
   if (!STATE.currentUser) {
-    if (STATE.users.length < 2) {
-      app.innerHTML = renderSetup();
-    } else {
-      app.innerHTML = renderLogin();
-    }
+    app.innerHTML = STATE.users.length < 2 ? renderSetup() : renderLogin();
     return;
   }
-
-  // Logged in
-  app.innerHTML = `
-    ${renderHeader()}
-    ${renderTabs()}
-    <div id="tab-content">
-      ${renderActiveTab()}
-    </div>
-  `;
+  app.innerHTML = renderHeader() + renderTabs() + '<div id="tab-content">' + renderActiveTab() + '</div>';
 }
 
-// ─────────────────────────────────────────
-// SETUP SCREEN
-// ─────────────────────────────────────────
 function renderSetup() {
   const existing = STATE.users.length;
   const setupNum = existing + 1;
-
-  return `
-  <div class="screen">
-    <div class="screen-card">
-      <h2>🍽️ Welcome to Restaurant Tracker</h2>
-      <p>Set up exactly 2 user profiles to get started. Each person needs a name and 4-digit PIN.</p>
-      
-      ${existing > 0 ? `<div class="banner banner-success">✓ User 1 created: <strong>${STATE.users[0].name}</strong></div>` : ''}
-      
-      <div class="setup-step">
-        <h3>Create User ${setupNum}</h3>
-        <div class="form-group">
-          <label>Name</label>
-          <input type="text" id="setup-name" placeholder="e.g. Alex" maxlength="30">
-        </div>
-        <div class="form-group">
-          <label>4-Digit PIN</label>
-          <input type="password" id="setup-pin" placeholder="••••" maxlength="4" pattern="[0-9]*" inputmode="numeric">
-        </div>
-        <button class="btn btn-primary" onclick="submitSetup()">Create User ${setupNum}</button>
-      </div>
-    </div>
-  </div>`;
+  return '<div class="screen"><div class="screen-card"><h2>🍽️ Welcome to Restaurant Tracker</h2><p>Set up exactly 2 user profiles to get started.</p>' +
+    (existing > 0 ? '<div class="banner banner-success">✓ User 1 created: <strong>' + STATE.users[0].name + '</strong></div>' : '') +
+    '<div class="setup-step"><h3>Create User ' + setupNum + '</h3><div class="form-group"><label>Name</label><input type="text" id="setup-name" placeholder="e.g. Alex" maxlength="30"></div><div class="form-group"><label>4-Digit PIN</label><input type="password" id="setup-pin" placeholder="••••" maxlength="4" inputmode="numeric"></div><button class="btn btn-primary" onclick="submitSetup()">Create User ' + setupNum + '</button></div></div></div>';
 }
 
 async function submitSetup() {
-  const name = (document.getElementById('setup-name').value || '').trim();
-  const pin = (document.getElementById('setup-pin').value || '').trim();
-  
+  const name = (document.getElementById('setup-name').value||'').trim();
+  const pin = (document.getElementById('setup-pin').value||'').trim();
   if (!name) return showError('Please enter a name.');
   if (!/^\d{4}$/.test(pin)) return showError('PIN must be exactly 4 digits.');
-  
-  // Check duplicate name
-  if (STATE.users.some(u => u.name.toLowerCase() === name.toLowerCase())) {
-    return showError('That name is already taken.');
-  }
-
+  if (STATE.users.some(u => u.name.toLowerCase()===name.toLowerCase())) return showError('That name is already taken.');
   showLoading(true);
-  try {
-    await dbInsert('users', { id: uuid(), name, pin });
-    await loadAllData();
-    render();
-  } catch(e) {
-    showError('Failed to create user: ' + e.message);
-  } finally {
-    showLoading(false);
-  }
+  try { await dbInsert('users',{id:uuid(),name,pin}); await loadAllData(); render(); }
+  catch(e) { showError('Failed to create user: '+e.message); }
+  finally { showLoading(false); }
 }
 
-// ─────────────────────────────────────────
-// LOGIN SCREEN
-// ─────────────────────────────────────────
 function renderLogin() {
   const selected = STATE.loginSelectedUser;
-  return `
-  <div class="screen">
-    <div class="screen-card">
-      <h2>🍽️ Restaurant Tracker</h2>
-      <p>Select your profile to log in.</p>
-      
-      <div class="user-cards">
-        ${STATE.users.map((u, i) => `
-          <div class="user-card ${selected === u.name ? 'selected' : ''}" onclick="selectLoginUser('${esc(u.name)}')">
-            <div class="user-card-avatar">${['🧑','👤'][i]}</div>
-            <div class="user-card-name">${esc(u.name)}</div>
-          </div>
-        `).join('')}
-      </div>
-      
-      ${selected ? `
-        <div id="pin-section">
-          <div class="form-group">
-            <label>PIN for ${esc(selected)}</label>
-            <input type="password" id="login-pin" placeholder="••••" maxlength="4" inputmode="numeric" onkeydown="if(event.key==='Enter') submitLogin()">
-          </div>
-          <button class="btn btn-gold" onclick="submitLogin()">Log In as ${esc(selected)}</button>
-        </div>
-      ` : ''}
-    </div>
-  </div>`;
+  return '<div class="screen"><div class="screen-card"><h2>🍽️ Restaurant Tracker</h2><p>Select your profile to log in.</p><div class="user-cards">' +
+    STATE.users.map((u,i) => '<div class="user-card ' + (selected===u.name?'selected':'') + '" onclick="selectLoginUser(\'' + esc(u.name) + '\')">' +
+      '<div class="user-card-avatar">' + ['🧑','👤'][i] + '</div><div class="user-card-name">' + esc(u.name) + '</div></div>').join('') +
+    '</div>' + (selected ? '<div id="pin-section"><div class="form-group"><label>PIN for ' + esc(selected) + '</label><input type="password" id="login-pin" placeholder="••••" maxlength="4" inputmode="numeric" onkeydown="if(event.key===\'Enter\') submitLogin()"></div><button class="btn btn-gold" onclick="submitLogin()">Log In as ' + esc(selected) + '</button></div>' : '') +
+    '</div></div>';
 }
 
 function selectLoginUser(name) {
-  STATE.loginSelectedUser = name;
-  render();
-  setTimeout(() => {
-    const el = document.getElementById('login-pin');
-    if (el) el.focus();
-  }, 50);
+  STATE.loginSelectedUser = name; render();
+  setTimeout(() => { const el = document.getElementById('login-pin'); if (el) el.focus(); }, 50);
 }
 
 async function submitLogin() {
   const name = STATE.loginSelectedUser;
-  const pin = (document.getElementById('login-pin').value || '').trim();
+  const pin = (document.getElementById('login-pin').value||'').trim();
   if (!pin) return showError('Enter your PIN.');
-  
-  const user = STATE.users.find(u => u.name === name);
+  const user = STATE.users.find(u => u.name===name);
   if (!user) return showError('User not found.');
-  if (user.pin !== pin) return showError('Incorrect PIN.');
-  
+  if (user.pin!==pin) return showError('Incorrect PIN.');
   STATE.currentUser = user.name;
   setSession('currentUser', user.name);
   STATE.loginSelectedUser = null;
+  initNotifications();
   render();
 }
 
-// ─────────────────────────────────────────
-// HEADER
-// ─────────────────────────────────────────
 function renderHeader() {
   return `
   <header>
     <h1>🍽️ <span>Restaurant</span> Tracker</h1>
     <div id="user-info">
       <span>👤 ${esc(STATE.currentUser)}</span>
+      <div class="notif-wrapper" id="notifBellWrapper">
+        <div class="notif-bell" id="notifBell" onclick="toggleNotifDropdown()">🔔</div>
+      </div>
       <button class="btn-switch" onclick="switchUser()">Switch User</button>
     </div>
   </header>`;
 }
 
 function switchUser() {
-  STATE.currentUser = null;
-  clearSession('currentUser');
-  STATE.loginSelectedUser = null;
+  STATE.currentUser = null; clearSession('currentUser'); STATE.loginSelectedUser = null;
+  if (notifPollTimer) { clearInterval(notifPollTimer); notifPollTimer = null; }
   render();
 }
 
-// ─────────────────────────────────────────
-// TABS
-// ─────────────────────────────────────────
-const TAB_LABELS = ['🍜 Wishlist', '⏳ Pending', '✅ Reviewed', '🔁 We\'d Return'];
-
+const TAB_LABELS = ['🍜 Wishlist','⏳ Pending','✅ Reviewed','🔁 We\'d Return'];
 function renderTabs() {
-  return `<div id="tabs">
-    ${TAB_LABELS.map((t, i) => `
-      <button class="tab-btn ${STATE.activeTab === i ? 'active' : ''}" onclick="setTab(${i})">${t}</button>
-    `).join('')}
-  </div>`;
+  return '<div id="tabs">' + TAB_LABELS.map((t,i) => '<button class="tab-btn ' + (STATE.activeTab===i?'active':'') + '" onclick="setTab(' + i + ')">' + t + '</button>').join('') + '</div>';
 }
-
 function setTab(i) {
   STATE.activeTab = i;
   const tc = document.getElementById('tab-content');
   const tabs = document.querySelectorAll('.tab-btn');
-  if (tabs) tabs.forEach((b, idx) => b.classList.toggle('active', idx === i));
+  if (tabs) tabs.forEach((b,idx) => b.classList.toggle('active', idx===i));
   if (tc) tc.innerHTML = renderActiveTab();
 }
-
 function renderActiveTab() {
-  switch(STATE.activeTab) {
-    case 0: return renderWishlist();
-    case 1: return renderPending();
-    case 2: return renderCompleted();
-    case 3: return renderWouldReturn();
-    default: return '';
-  }
+  switch(STATE.activeTab) { case 0: return renderWishlist(); case 1: return renderPending(); case 2: return renderCompleted(); case 3: return renderWouldReturn(); default: return ''; }
 }
 
-// ─────────────────────────────────────────
-// TAB 1: WISHLIST
-// ─────────────────────────────────────────
 function renderWishlist() {
-  const sorted = [...STATE.wishlist].sort((a, b) => {
-    const scoreA = getCombinedScore(a.id);
-    const scoreB = getCombinedScore(b.id);
-    return scoreB - scoreA;
-  });
-
-  return `
-  <div style="padding-top:16px;">
-    ${renderAddRestaurantForm()}
-    <h3 style="color:var(--burgundy);margin-bottom:10px;font-size:0.95rem;">🏆 Leaderboard (${sorted.length})</h3>
-    ${sorted.length === 0 ? `<div class="empty-state"><span>🍽️</span>No restaurants yet. Add one above!</div>` : ''}
-    ${sorted.map((r, i) => renderWishlistCard(r, i)).join('')}
-  </div>`;
+  const sorted = [...STATE.wishlist].sort((a,b) => getCombinedScore(b.id) - getCombinedScore(a.id));
+  return '<div style="padding-top:16px;">' + renderAddRestaurantForm() + '<h3 style="color:var(--burgundy);margin-bottom:10px;font-size:0.95rem;">🏆 Leaderboard (' + sorted.length + ')</h3>' +
+    (sorted.length===0 ? '<div class="empty-state"><span>🍽️</span>No restaurants yet. Add one above!</div>' : sorted.map((r,i) => renderWishlistCard(r,i)).join('')) + '</div>';
 }
 
 function renderAddRestaurantForm() {
-  return `
-  <div class="form-box">
-    <h3>➕ Add New Restaurant</h3>
-    <div class="form-row">
-      <div class="form-group">
-        <label>Restaurant Name *</label>
-        <input type="text" id="add-name" placeholder="e.g. La Bella Italia">
-      </div>
-      <div class="form-group">
-        <label>Cuisine *</label>
-        <input type="text" id="add-cuisine" placeholder="e.g. Italian, Thai…">
-      </div>
-    </div>
-    <div class="form-group">
-      <label>Notes (optional)</label>
-      <textarea id="add-notes" placeholder="Why you want to visit, dietary info…"></textarea>
-    </div>
-    <button class="btn btn-gold" onclick="addRestaurant()">Add to Wishlist</button>
-  </div>`;
+  return '<div class="form-box"><h3>➕ Add New Restaurant</h3><div class="form-row"><div class="form-group"><label>Restaurant Name *</label><input type="text" id="add-name" placeholder="e.g. La Bella Italia"></div><div class="form-group"><label>Cuisine *</label><input type="text" id="add-cuisine" placeholder="e.g. Italian, Thai…"></div></div><div class="form-group"><label>Notes (optional)</label><textarea id="add-notes" placeholder="Why you want to visit…"></textarea></div><button class="btn btn-gold" onclick="addRestaurant()">Add to Wishlist</button></div>';
 }
 
 function getCombinedScore(restaurantId) {
-  const scores = STATE.desireScores.filter(s => s.restaurant_id === restaurantId);
-  return scores.reduce((sum, s) => sum + (s.score || 0), 0);
+  return STATE.desireScores.filter(s => s.restaurant_id===restaurantId).reduce((sum,s) => sum+(s.score||0), 0);
 }
 
 function renderWishlistCard(r, idx) {
   const [u1, u2] = STATE.users;
-  const scores = STATE.desireScores.filter(s => s.restaurant_id === r.id);
-  const s1 = scores.find(s => s.user_name === u1.name);
-  const s2 = scores.find(s => s.user_name === u2.name);
+  const scores = STATE.desireScores.filter(s => s.restaurant_id===r.id);
+  const s1 = scores.find(s => s.user_name===u1.name);
+  const s2 = scores.find(s => s.user_name===u2.name);
   const bothScored = s1 && s2;
   const combined = bothScored ? (s1.score + s2.score) : null;
-  const isMe = name => name === STATE.currentUser;
-
   const medals = ['🥇','🥈','🥉'];
-  const medal = bothScored && idx < 3 ? medals[idx] : '';
+  const medal = bothScored && idx<3 ? medals[idx] : '';
 
   function renderScoreBox(user, score) {
-    const mine = isMe(user.name);
+    const mine = user.name === STATE.currentUser;
     const locked = !!score;
-    return `
-      <div class="score-box">
-        <h4>${esc(user.name)} ${mine ? '(you)' : ''}</h4>
-        ${locked ? `<div class="score-display">${bothScored ? score.score : '?'}</div>
-          <div class="text-sm text-muted mt-8">Submitted ✓</div>
-        ` : (mine ? `
-          <div class="score-input-row">
-            <input type="number" id="score-${r.id}-${esc(user.name)}" min="1" max="10" placeholder="1-10">
-            <button class="btn btn-sm btn-primary" onclick="submitScore('${r.id}','${esc(user.name)}')">Submit</button>
-          </div>
-        ` : `<div class="score-display hidden-score">?</div><div class="text-sm text-muted mt-8">Not submitted yet</div>`)}
-      </div>`;
+    return '<div class="score-box"><h4>' + esc(user.name) + (mine?' (you)':'') + '</h4>' +
+      (locked ? '<div class="score-display">' + (bothScored ? score.score : '?') + '</div><div class="text-sm text-muted mt-8">Submitted ✓</div>' :
+       (mine ? '<div class="score-input-row"><input type="number" id="score-' + r.id + '-' + esc(user.name) + '" min="1" max="10" placeholder="1-10"><button class="btn btn-sm btn-primary" onclick="submitScore(\'' + r.id + '\',\'' + esc(user.name) + '\')">Submit</button></div>' :
+        '<div class="score-display hidden-score">?</div><div class="text-sm text-muted mt-8">Not submitted yet</div>')) + '</div>';
   }
 
-  return `
-  <div class="card rank-card">
-    ${medal ? `<div class="rank-num">${medal}</div>` : ''}
-    <div class="card-header">
-      <div>
-        <div class="card-title">${esc(r.name)}</div>
-        <div class="card-sub">
-          <span class="tag">${esc(r.cuisine)}</span>
-          <span class="text-muted" style="margin-left:6px;font-size:0.75rem;">Added by ${esc(r.added_by)}</span>
-        </div>
-        ${r.notes ? `<div style="font-size:0.8rem;color:var(--text-light);margin-top:4px;">${esc(r.notes)}</div>` : ''}
-      </div>
-      ${bothScored ? `<div><div class="combined-score">${combined}/20</div></div>` : ''}
-    </div>
-    ${!bothScored ? `<div class="banner banner-info mt-8">Scores hidden until both users submit.</div>` : ''}
-    <div class="scores-section">
-      ${renderScoreBox(u1, s1)}
-      ${renderScoreBox(u2, s2)}
-    </div>
-    <hr class="divider">
-    <div class="flex-gap">
-      <button class="btn btn-sm btn-outline" onclick="markVisited('${r.id}')">✓ Mark as Visited</button>
-      <button class="btn btn-sm btn-danger" onclick="deleteWishlist('${r.id}')">🗑 Delete</button>
-    </div>
-  </div>`;
+  return '<div class="card rank-card">' + (medal ? '<div class="rank-num">' + medal + '</div>' : '') +
+    '<div class="card-header"><div><div class="card-title">' + esc(r.name) + '</div><div class="card-sub"><span class="tag">' + esc(r.cuisine) + '</span><span class="text-muted" style="margin-left:6px;font-size:0.75rem;">Added by ' + esc(r.added_by) + '</span></div>' +
+    (r.notes ? '<div style="font-size:0.8rem;color:var(--text-light);margin-top:4px;">' + esc(r.notes) + '</div>' : '') + '</div>' +
+    (bothScored ? '<div><div class="combined-score">' + combined + '/20</div></div>' : '') + '</div>' +
+    (!bothScored ? '<div class="banner banner-info mt-8">Scores hidden until both users submit.</div>' : '') +
+    '<div class="scores-section">' + renderScoreBox(u1,s1) + renderScoreBox(u2,s2) + '</div>' +
+    '<hr class="divider"><div class="flex-gap"><button class="btn btn-sm btn-outline" onclick="markVisited(\'' + r.id + '\')">✓ Mark as Visited</button><button class="btn btn-sm btn-danger" onclick="deleteWishlist(\'' + r.id + '\')">🗑 Delete</button></div></div>';
 }
 
 async function addRestaurant() {
-  const name = (document.getElementById('add-name').value || '').trim();
-  const cuisine = (document.getElementById('add-cuisine').value || '').trim();
-  const notes = (document.getElementById('add-notes').value || '').trim();
-
+  const name = (document.getElementById('add-name').value||'').trim();
+  const cuisine = (document.getElementById('add-cuisine').value||'').trim();
+  const notes = (document.getElementById('add-notes').value||'').trim();
   if (!name || !cuisine) return showError('Name and cuisine are required.');
-
-  // Duplicate check (case-insensitive across all 3 tables)
   const nameLower = name.toLowerCase();
-  const inWishlist = STATE.wishlist.some(r => r.name.toLowerCase() === nameLower);
-  const inPending = STATE.pendingReviews.some(r => r.name.toLowerCase() === nameLower);
-  const inReviewed = STATE.reviews.some(r => false); // checked via pending
-
-  if (inWishlist) return showError(`"${name}" is already in your wishlist.`);
-  if (inPending) return showError(`"${name}" is already in Pending Reviews.`);
-  
-  // Check reviews table via pending names
-  const allNames = [
-    ...STATE.wishlist.map(r => r.name.toLowerCase()),
-    ...STATE.pendingReviews.map(r => r.name.toLowerCase())
-  ];
-  if (allNames.includes(nameLower)) return showError(`"${name}" already exists.`);
-
+  if (STATE.wishlist.some(r => r.name.toLowerCase()===nameLower)) return showError('"' + name + '" is already in your wishlist.');
+  if (STATE.pendingReviews.some(r => r.name.toLowerCase()===nameLower)) return showError('"' + name + '" is already in Pending Reviews.');
   showLoading(true);
   try {
-    await dbInsert('wishlist', { id: uuid(), name, cuisine, notes, added_by: STATE.currentUser });
+    await dbInsert('wishlist',{id:uuid(),name,cuisine,notes,added_by:STATE.currentUser});
     await loadAllData();
-    document.getElementById('add-name').value = '';
-    document.getElementById('add-cuisine').value = '';
-    document.getElementById('add-notes').value = '';
+    const otherUser1 = getOtherUser();
+    if (otherUser1) await createNotification(otherUser1, '🍽️ ' + STATE.currentUser + ' added "' + name + '" to the wishlist!', 'new_restaurant');
+    document.getElementById('add-name').value='';
+    document.getElementById('add-cuisine').value='';
+    document.getElementById('add-notes').value='';
     render();
-  } catch(e) {
-    showError('Failed to add restaurant: ' + e.message);
-  } finally {
-    showLoading(false);
-  }
+  } catch(e) { showError('Failed to add restaurant: '+e.message); }
+  finally { showLoading(false); }
 }
 
 async function submitScore(restaurantId, userName) {
-  if (userName !== STATE.currentUser) return showError("You can only submit your own score.");
-  const input = document.getElementById(`score-${restaurantId}-${userName}`);
+  if (userName!==STATE.currentUser) return showError('You can only submit your own score.');
+  const input = document.getElementById('score-' + restaurantId + '-' + userName);
   if (!input) return;
   const val = parseInt(input.value);
-  if (isNaN(val) || val < 1 || val > 10) return showError('Score must be between 1 and 10.');
-
-  // Check not already submitted
-  const existing = STATE.desireScores.find(s => s.restaurant_id === restaurantId && s.user_name === userName);
-  if (existing) return showError('You already submitted a score.');
-
+  if (isNaN(val)||val<1||val>10) return showError('Score must be between 1 and 10.');
+  if (STATE.desireScores.find(s => s.restaurant_id===restaurantId && s.user_name===userName)) return showError('You already submitted a score.');
   showLoading(true);
   try {
-    await dbInsert('desire_scores', { id: uuid(), restaurant_id: restaurantId, user_name: userName, score: val });
+    await dbInsert('desire_scores',{id:uuid(),restaurant_id:restaurantId,user_name:userName,score:val});
     await loadAllData();
+    const otherUser2 = getOtherUser();
+    const restaurant2 = STATE.wishlist.find(x => x.id===restaurantId);
+    if (otherUser2 && restaurant2) await createNotification(otherUser2, '⭐ ' + STATE.currentUser + ' scored "' + restaurant2.name + '" ' + val + '/10', 'score_submitted');
     render();
-  } catch(e) {
-    showError('Failed to submit score: ' + e.message);
-  } finally {
-    showLoading(false);
-  }
+  } catch(e) { showError('Failed to submit score: '+e.message); }
+  finally { showLoading(false); }
 }
 
 async function markVisited(restaurantId) {
   if (!confirm('Mark this restaurant as visited? It will move to Pending Reviews.')) return;
-  const r = STATE.wishlist.find(x => x.id === restaurantId);
+  const r = STATE.wishlist.find(x => x.id===restaurantId);
   if (!r) return;
-
   showLoading(true);
   try {
-    await dbInsert('pending_reviews', {
-      id: restaurantId,
-      restaurant_id: restaurantId,
-      name: r.name,
-      cuisine: r.cuisine,
-      visited_at: new Date().toISOString()
-    });
-    await dbDelete('wishlist', `id=eq.${restaurantId}`);
+    await dbInsert('pending_reviews',{id:restaurantId,restaurant_id:restaurantId,name:r.name,cuisine:r.cuisine,visited_at:new Date().toISOString()});
+    await dbDelete('wishlist','id=eq.'+restaurantId);
     await loadAllData();
-    STATE.activeTab = 1;
-    render();
-  } catch(e) {
-    showError('Failed to mark visited: ' + e.message);
-  } finally {
-    showLoading(false);
-  }
+    const otherUser3 = getOtherUser();
+    if (otherUser3) await createNotification(otherUser3, '✅ ' + STATE.currentUser + ' marked "' + r.name + '" as visited — time to review!', 'visited');
+    STATE.activeTab = 1; render();
+  } catch(e) { showError('Failed to mark visited: '+e.message); }
+  finally { showLoading(false); }
 }
 
 async function deleteWishlist(restaurantId) {
   if (!confirm('Delete this restaurant from wishlist?')) return;
   showLoading(true);
   try {
-    await dbDelete('desire_scores', `restaurant_id=eq.${restaurantId}`);
-    await dbDelete('wishlist', `id=eq.${restaurantId}`);
-    await loadAllData();
-    render();
-  } catch(e) {
-    showError('Failed to delete: ' + e.message);
-  } finally {
-    showLoading(false);
-  }
+    await dbDelete('desire_scores','restaurant_id=eq.'+restaurantId);
+    await dbDelete('wishlist','id=eq.'+restaurantId);
+    await loadAllData(); render();
+  } catch(e) { showError('Failed to delete: '+e.message); }
+  finally { showLoading(false); }
 }
 
-// ─────────────────────────────────────────
-// TAB 2: PENDING REVIEWS
-// ─────────────────────────────────────────
 function renderPending() {
   const pending = getPendingOnly();
-  return `
-  <div style="padding-top:16px;">
-    <h3 style="color:var(--burgundy);margin-bottom:10px;font-size:0.95rem;">⏳ Awaiting Reviews (${pending.length})</h3>
-    ${pending.length === 0 ? `<div class="empty-state"><span>✅</span>No pending reviews! Mark restaurants as visited from the Wishlist.</div>` : ''}
-    ${pending.map(r => renderPendingCard(r)).join('')}
-  </div>`;
+  return '<div style="padding-top:16px;"><h3 style="color:var(--burgundy);margin-bottom:10px;font-size:0.95rem;">⏳ Awaiting Reviews (' + pending.length + ')</h3>' +
+    (pending.length===0 ? '<div class="empty-state"><span>✅</span>No pending reviews!</div>' : pending.map(r => renderPendingCard(r)).join('')) + '</div>';
 }
 
 function renderPendingCard(r) {
-  const [u1, u2] = STATE.users;
-  const myReview = STATE.reviews.find(rv => rv.restaurant_id === r.id && rv.user_name === STATE.currentUser);
-  const otherName = STATE.users.find(u => u.name !== STATE.currentUser).name;
-  const otherReview = STATE.reviews.find(rv => rv.restaurant_id === r.id && rv.user_name === otherName);
+  const myReview = STATE.reviews.find(rv => rv.restaurant_id===r.id && rv.user_name===STATE.currentUser);
+  const otherName = STATE.users.find(u => u.name!==STATE.currentUser).name;
+  const otherReview = STATE.reviews.find(rv => rv.restaurant_id===r.id && rv.user_name===otherName);
   const bothReviewed = myReview && otherReview;
-
   const visited = r.visited_at ? new Date(r.visited_at).toLocaleDateString() : '';
-
-  return `
-  <div class="card">
-    <div class="card-header">
-      <div>
-        <div class="card-title">${esc(r.name)}</div>
-        <div class="card-sub"><span class="tag">${esc(r.cuisine)}</span>${visited ? ` <span class="text-muted">Visited ${visited}</span>` : ''}</div>
-      </div>
-    </div>
-    ${!bothReviewed ? `<div class="banner banner-info mt-8">Reviews hidden until both users submit.</div>` : ''}
-    ${myReview && !otherReview ? `<div class="banner banner-waiting mt-8">⏳ Awaiting review from ${esc(otherName)}</div>` : ''}
-    ${bothReviewed ? `<div class="banner banner-success mt-8">✓ Both reviews submitted!</div>` : ''}
-    
-    <div class="review-grid">
-      ${renderReviewCol(r, STATE.currentUser, myReview, false, bothReviewed)}
-      ${renderReviewCol(r, otherName, otherReview, true, bothReviewed)}
-    </div>
-  </div>`;
+  return '<div class="card"><div class="card-header"><div><div class="card-title">' + esc(r.name) + '</div><div class="card-sub"><span class="tag">' + esc(r.cuisine) + '</span>' + (visited?' <span class="text-muted">Visited '+visited+'</span>':'') + '</div></div></div>' +
+    (!bothReviewed ? '<div class="banner banner-info mt-8">Reviews hidden until both users submit.</div>' : '') +
+    (myReview && !otherReview ? '<div class="banner banner-waiting mt-8">⏳ Awaiting review from ' + esc(otherName) + '</div>' : '') +
+    (bothReviewed ? '<div class="banner banner-success mt-8">✓ Both reviews submitted!</div>' : '') +
+    '<div class="review-grid">' + renderReviewCol(r, STATE.currentUser, myReview, false, bothReviewed) + renderReviewCol(r, otherName, otherReview, true, bothReviewed) + '</div></div>';
 }
 
 function renderReviewCol(r, userName, existingReview, isLocked, bothReviewed) {
   const isMine = userName === STATE.currentUser;
   const showData = bothReviewed && existingReview;
-
   if (existingReview && showData) {
-    return `
-    <div class="review-col">
-      <h4>${esc(userName)} ${isMine ? '(you)' : ''} ✓</h4>
-      <div class="review-field"><label>Food</label> ${existingReview.food}/10</div>
-      <div class="review-field"><label>Vibes</label> ${existingReview.vibes}/10</div>
-      <div class="review-field"><label>Service</label> ${existingReview.service}/10</div>
-      <div class="review-field"><label>Would Go Again</label> <span class="${existingReview.would_go_again ? 'would-yes' : 'would-no'}">${existingReview.would_go_again ? '✓ Yes' : '✗ No'}</span></div>
-      <div class="review-field"><label>Favourite Dish</label> ${esc(existingReview.favourite_dish || '—')}</div>
-    </div>`;
+    return '<div class="review-col"><h4>' + esc(userName) + (isMine?' (you)':'') + ' ✓</h4>' +
+      '<div class="review-field"><label>Food</label> ' + existingReview.food + '/10</div>' +
+      '<div class="review-field"><label>Vibes</label> ' + existingReview.vibes + '/10</div>' +
+      '<div class="review-field"><label>Service</label> ' + existingReview.service + '/10</div>' +
+      '<div class="review-field"><label>Would Go Again</label> <span class="' + (existingReview.would_go_again?'would-yes':'would-no') + '">' + (existingReview.would_go_again?'✓ Yes':'✗ No') + '</span></div>' +
+      '<div class="review-field"><label>Favourite Dish</label> ' + esc(existingReview.favourite_dish||'—') + '</div></div>';
   }
-
   if (existingReview && !bothReviewed) {
-    return `
-    <div class="review-col">
-      <h4>${esc(userName)} ${isMine ? '(you)' : ''} ✓</h4>
-      <div class="text-muted text-sm">Submitted — waiting for other review to reveal.</div>
-    </div>`;
+    return '<div class="review-col"><h4>' + esc(userName) + (isMine?' (you)':'') + ' ✓</h4><div class="text-muted text-sm">Submitted — waiting for other review.</div></div>';
   }
-
   if (!isMine || isLocked) {
-    return `
-    <div class="review-col locked">
-      <h4>${esc(userName)}</h4>
-      <div class="text-muted text-sm">Not submitted yet.</div>
-    </div>`;
+    return '<div class="review-col locked"><h4>' + esc(userName) + '</h4><div class="text-muted text-sm">Not submitted yet.</div></div>';
   }
-
-  // Editable form for current user
-  return `
-  <div class="review-col">
-    <h4>${esc(userName)} (you)</h4>
-    <div class="review-field">
-      <label>Food /10</label>
-      <input type="number" id="rv-food-${r.id}" min="1" max="10" placeholder="1-10">
-    </div>
-    <div class="review-field">
-      <label>Vibes /10</label>
-      <input type="number" id="rv-vibes-${r.id}" min="1" max="10" placeholder="1-10">
-    </div>
-    <div class="review-field">
-      <label>Service /10</label>
-      <input type="number" id="rv-service-${r.id}" min="1" max="10" placeholder="1-10">
-    </div>
-    <div class="review-field">
-      <label>Would Go Again?</label>
-      <select id="rv-wga-${r.id}">
-        <option value="">Select…</option>
-        <option value="yes">Yes</option>
-        <option value="no">No</option>
-      </select>
-    </div>
-    <div class="review-field">
-      <label>Favourite Dish</label>
-      <input type="text" id="rv-dish-${r.id}" placeholder="e.g. Truffle pasta">
-    </div>
-    <button class="btn btn-gold btn-sm" style="margin-top:6px;" onclick="submitReview('${r.id}')">Submit Review</button>
-  </div>`;
+  return '<div class="review-col"><h4>' + esc(userName) + ' (you)</h4>' +
+    '<div class="review-field"><label>Food /10</label><input type="number" id="rv-food-' + r.id + '" min="1" max="10" placeholder="1-10"></div>' +
+    '<div class="review-field"><label>Vibes /10</label><input type="number" id="rv-vibes-' + r.id + '" min="1" max="10" placeholder="1-10"></div>' +
+    '<div class="review-field"><label>Service /10</label><input type="number" id="rv-service-' + r.id + '" min="1" max="10" placeholder="1-10"></div>' +
+    '<div class="review-field"><label>Would Go Again?</label><select id="rv-wga-' + r.id + '"><option value="">Select…</option><option value="yes">Yes</option><option value="no">No</option></select></div>' +
+    '<div class="review-field"><label>Favourite Dish</label><input type="text" id="rv-dish-' + r.id + '" placeholder="e.g. Truffle pasta"></div>' +
+    '<button class="btn btn-gold btn-sm" style="margin-top:6px;" onclick="submitReview(\'' + r.id + '\')">Submit Review</button></div>';
 }
 
 async function submitReview(restaurantId) {
-  const food = parseInt(document.getElementById(`rv-food-${restaurantId}`).value);
-  const vibes = parseInt(document.getElementById(`rv-vibes-${restaurantId}`).value);
-  const service = parseInt(document.getElementById(`rv-service-${restaurantId}`).value);
-  const wga = document.getElementById(`rv-wga-${restaurantId}`).value;
-  const dish = (document.getElementById(`rv-dish-${restaurantId}`).value || '').trim();
-
-  if ([food, vibes, service].some(v => isNaN(v) || v < 1 || v > 10)) return showError('All scores must be between 1 and 10.');
+  const food = parseInt(document.getElementById('rv-food-' + restaurantId).value);
+  const vibes = parseInt(document.getElementById('rv-vibes-' + restaurantId).value);
+  const service = parseInt(document.getElementById('rv-service-' + restaurantId).value);
+  const wga = document.getElementById('rv-wga-' + restaurantId).value;
+  const dish = (document.getElementById('rv-dish-' + restaurantId).value||'').trim();
+  if ([food,vibes,service].some(v => isNaN(v)||v<1||v>10)) return showError('All scores must be between 1 and 10.');
   if (!wga) return showError('Please select Would Go Again.');
-
   showLoading(true);
   try {
-    await dbInsert('reviews', {
-      id: uuid(),
-      restaurant_id: restaurantId,
-      user_name: STATE.currentUser,
-      food, vibes, service,
-      would_go_again: wga === 'yes',
-      favourite_dish: dish
-    });
+    await dbInsert('reviews',{id:uuid(),restaurant_id:restaurantId,user_name:STATE.currentUser,food,vibes,service,would_go_again:wga==='yes',favourite_dish:dish});
     await loadAllData();
-
-    // Check if both reviewed — if so, switch to completed tab
-    const completed = getCompletedRestaurants();
-    if (completed.some(r => r.id === restaurantId)) {
+    const otherUser4 = getOtherUser();
+    const pendingR = STATE.pendingReviews.find(x => x.id===restaurantId);
+    if (otherUser4 && pendingR) await createNotification(otherUser4, '📝 ' + STATE.currentUser + ' submitted their review for "' + pendingR.name + '"', 'review_submitted');
+    const completedNow = getCompletedRestaurants();
+    if (completedNow.some(x => x.id===restaurantId) && pendingR) {
+      const otherUser5 = getOtherUser();
+      if (otherUser5) await createNotification(otherUser5, '🎉 Both reviews for "' + pendingR.name + '" are complete! Check the leaderboard.', 'review_complete');
+      await createNotification(STATE.currentUser, '🎉 Both reviews for "' + pendingR.name + '" are complete! Check the leaderboard.', 'review_complete');
       STATE.activeTab = 2;
     }
     render();
-  } catch(e) {
-    showError('Failed to submit review: ' + e.message);
-  } finally {
-    showLoading(false);
-  }
+  } catch(e) { showError('Failed to submit review: '+e.message); }
+  finally { showLoading(false); }
 }
 
-// ─────────────────────────────────────────
-// TAB 3: COMPLETED REVIEWS
-// ─────────────────────────────────────────
 function renderCompleted() {
   const completed = getCompletedRestaurants();
-  if (STATE.users.length < 2) return '<div class="empty-state"><span>👤</span>Need 2 users to see completed reviews.</div>';
-
+  if (STATE.users.length < 2) return '<div class="empty-state"><span>👤</span>Need 2 users.</div>';
   const [u1, u2] = STATE.users;
-
-  // Compute combined averages
   const ranked = completed.map(r => {
-    const rv1 = STATE.reviews.find(rv => rv.restaurant_id === r.id && rv.user_name === u1.name);
-    const rv2 = STATE.reviews.find(rv => rv.restaurant_id === r.id && rv.user_name === u2.name);
-    const avg1 = rv1 ? ((rv1.food + rv1.vibes + rv1.service) / 3) : 0;
-    const avg2 = rv2 ? ((rv2.food + rv2.vibes + rv2.service) / 3) : 0;
-    const combined = parseFloat((avg1 + avg2).toFixed(1));
-    return { r, rv1, rv2, avg1, avg2, combined };
-  }).sort((a, b) => b.combined - a.combined);
-
+    const rv1 = STATE.reviews.find(rv => rv.restaurant_id===r.id && rv.user_name===u1.name);
+    const rv2 = STATE.reviews.find(rv => rv.restaurant_id===r.id && rv.user_name===u2.name);
+    const avg1 = rv1 ? (rv1.food+rv1.vibes+rv1.service)/3 : 0;
+    const avg2 = rv2 ? (rv2.food+rv2.vibes+rv2.service)/3 : 0;
+    return { r, rv1, rv2, avg1, avg2, combined: parseFloat((avg1+avg2).toFixed(1)) };
+  }).sort((a,b) => b.combined-a.combined);
   const totalVisited = ranked.length;
-  const avgScore = totalVisited > 0 ? (ranked.reduce((s, x) => s + x.combined, 0) / totalVisited).toFixed(1) : '—';
+  const avgScore = totalVisited > 0 ? (ranked.reduce((s,x) => s+x.combined,0)/totalVisited).toFixed(1) : '—';
   const topRest = ranked.length > 0 ? ranked[0].r.name : '—';
-
-  return `
-  <div style="padding-top:16px;">
-    <div class="stats-row">
-      <div class="stat-box"><div class="stat-num">${totalVisited}</div><div class="stat-label">Total Visited</div></div>
-      <div class="stat-box"><div class="stat-num">${avgScore}</div><div class="stat-label">Avg Combined Score</div></div>
-      <div class="stat-box"><div class="stat-num" style="font-size:1rem;">${esc(topRest)}</div><div class="stat-label">Top Scorer</div></div>
-    </div>
-    <h3 style="color:var(--burgundy);margin-bottom:10px;font-size:0.95rem;">🏆 Rankings (${totalVisited})</h3>
-    ${ranked.length === 0 ? `<div class="empty-state"><span>🍽️</span>No completed reviews yet.</div>` : ''}
-    ${ranked.map(({r, rv1, rv2, avg1, avg2, combined}, idx) => renderCompletedCard(r, rv1, rv2, avg1, avg2, combined, idx)).join('')}
-  </div>`;
+  return '<div style="padding-top:16px;"><div class="stats-row"><div class="stat-box"><div class="stat-num">' + totalVisited + '</div><div class="stat-label">Total Visited</div></div><div class="stat-box"><div class="stat-num">' + avgScore + '</div><div class="stat-label">Avg Combined Score</div></div><div class="stat-box"><div class="stat-num" style="font-size:1rem;">' + esc(topRest) + '</div><div class="stat-label">Top Scorer</div></div></div><h3 style="color:var(--burgundy);margin-bottom:10px;font-size:0.95rem;">🏆 Rankings (' + totalVisited + ')</h3>' +
+    (ranked.length===0 ? '<div class="empty-state"><span>🍽️</span>No completed reviews yet.</div>' : ranked.map(({r,rv1,rv2,avg1,avg2,combined},idx) => renderCompletedCard(r,rv1,rv2,avg1,avg2,combined,idx)).join('')) + '</div>';
 }
 
-function renderCompletedCard(r, rv1, rv2, avg1, avg2, combined, idx) {
+function renderCompletedCard(r,rv1,rv2,avg1,avg2,combined,idx) {
   const medals = ['🥇','🥈','🥉'];
-  const medal = idx < 3 ? medals[idx] : `#${idx+1}`;
+  const medal = idx<3 ? medals[idx] : '#'+(idx+1);
   const [u1, u2] = STATE.users;
-
   function scoreBlock(label, rv) {
-    if (!rv) return `<div class="score-box"><h4>${esc(label)}</h4><div class="text-muted text-sm">No review</div></div>`;
-    const avg = ((rv.food + rv.vibes + rv.service) / 3).toFixed(1);
-    return `
-    <div class="score-box">
-      <h4>${esc(label)}</h4>
-      <div style="font-size:0.8rem;line-height:1.8;">
-        <div>🍕 Food: <strong>${rv.food}/10</strong></div>
-        <div>✨ Vibes: <strong>${rv.vibes}/10</strong></div>
-        <div>🛎 Service: <strong>${rv.service}/10</strong></div>
-        <div>Avg: <strong>${avg}</strong></div>
-        <div>Return: <span class="${rv.would_go_again ? 'would-yes' : 'would-no'}">${rv.would_go_again ? '✓ Yes' : '✗ No'}</span></div>
-        <div style="margin-top:4px;">🍽 <em>${esc(rv.favourite_dish || '—')}</em></div>
-      </div>
-    </div>`;
+    if (!rv) return '<div class="score-box"><h4>' + esc(label) + '</h4><div class="text-muted text-sm">No review</div></div>';
+    const avg = ((rv.food+rv.vibes+rv.service)/3).toFixed(1);
+    return '<div class="score-box"><h4>' + esc(label) + '</h4><div style="font-size:0.8rem;line-height:1.8;"><div>🍕 Food: <strong>' + rv.food + '/10</strong></div><div>✨ Vibes: <strong>' + rv.vibes + '/10</strong></div><div>🛎 Service: <strong>' + rv.service + '/10</strong></div><div>Avg: <strong>' + avg + '</strong></div><div>Return: <span class="' + (rv.would_go_again?'would-yes':'would-no') + '">' + (rv.would_go_again?'✓ Yes':'✗ No') + '</span></div><div style="margin-top:4px;">🍽 <em>' + esc(rv.favourite_dish||'—') + '</em></div></div></div>';
   }
-
-  return `
-  <div class="card rank-card">
-    <div class="rank-num">${medal}</div>
-    <div class="card-header">
-      <div>
-        <div class="card-title">${esc(r.name)}</div>
-        <div class="card-sub"><span class="tag">${esc(r.cuisine)}</span></div>
-      </div>
-      <div class="combined-score">${combined}/20</div>
-    </div>
-    <div class="scores-section mt-8">
-      ${scoreBlock(u1.name, rv1)}
-      ${scoreBlock(u2.name, rv2)}
-    </div>
-  </div>`;
+  return '<div class="card rank-card"><div class="rank-num">' + medal + '</div><div class="card-header"><div><div class="card-title">' + esc(r.name) + '</div><div class="card-sub"><span class="tag">' + esc(r.cuisine) + '</span></div></div><div class="combined-score">' + combined + '/20</div></div><div class="scores-section mt-8">' + scoreBlock(u1.name,rv1) + scoreBlock(u2.name,rv2) + '</div></div>';
 }
 
-// ─────────────────────────────────────────
-// TAB 4: WE'D RETURN
-// ─────────────────────────────────────────
 function renderWouldReturn() {
   const completed = getCompletedRestaurants();
   if (STATE.users.length < 2) return '<div class="empty-state"><span>👤</span>Need 2 users.</div>';
-
   const [u1, u2] = STATE.users;
-
-  const returnList = completed
-    .map(r => {
-      const rv1 = STATE.reviews.find(rv => rv.restaurant_id === r.id && rv.user_name === u1.name);
-      const rv2 = STATE.reviews.find(rv => rv.restaurant_id === r.id && rv.user_name === u2.name);
-      return { r, rv1, rv2 };
-    })
-    .filter(({ rv1, rv2 }) => rv1 && rv2 && rv1.would_go_again && rv2.would_go_again)
-    .map(({ r, rv1, rv2 }) => {
-      const combined = parseFloat((((rv1.food + rv1.vibes + rv1.service) / 3) + ((rv2.food + rv2.vibes + rv2.service) / 3)).toFixed(1));
-      return { r, rv1, rv2, combined };
-    })
-    .sort((a, b) => b.combined - a.combined);
-
+  const returnList = completed.map(r => {
+    const rv1 = STATE.reviews.find(rv => rv.restaurant_id===r.id && rv.user_name===u1.name);
+    const rv2 = STATE.reviews.find(rv => rv.restaurant_id===r.id && rv.user_name===u2.name);
+    return { r, rv1, rv2 };
+  }).filter(({rv1,rv2}) => rv1&&rv2&&rv1.would_go_again&&rv2.would_go_again)
+  .map(({r,rv1,rv2}) => ({ r, rv1, rv2, combined: parseFloat((((rv1.food+rv1.vibes+rv1.service)/3)+((rv2.food+rv2.vibes+rv2.service)/3)).toFixed(1)) }))
+  .sort((a,b) => b.combined-a.combined);
   const medals = ['🥇','🥈','🥉'];
-
-  return `
-  <div style="padding-top:16px;">
-    <h3 style="color:var(--burgundy);margin-bottom:10px;font-size:0.95rem;">🔁 We'd Go Back Here! (${returnList.length})</h3>
-    ${returnList.length === 0 ? `<div class="empty-state"><span>💭</span>No restaurants where both of you said "Would Go Again". Yet!</div>` : ''}
-    ${returnList.map(({ r, rv1, rv2, combined }, idx) => `
-      <div class="card">
-        <div class="card-header">
-          <div>
-            <div style="font-size:1.1rem;">${idx < 3 ? medals[idx] : `#${idx+1}`} <strong>${esc(r.name)}</strong></div>
-            <div class="card-sub"><span class="tag">${esc(r.cuisine)}</span></div>
-          </div>
-          <div class="combined-score">${combined}/20</div>
-        </div>
-        <div style="margin-top:10px;font-size:0.82rem;display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-          <div>
-            <div class="text-muted">${esc(u1.name)}'s fave dish:</div>
-            <div style="font-style:italic;">${esc(rv1.favourite_dish || '—')}</div>
-          </div>
-          <div>
-            <div class="text-muted">${esc(u2.name)}'s fave dish:</div>
-            <div style="font-style:italic;">${esc(rv2.favourite_dish || '—')}</div>
-          </div>
-        </div>
-      </div>
-    `).join('')}
-  </div>`;
+  return '<div style="padding-top:16px;"><h3 style="color:var(--burgundy);margin-bottom:10px;font-size:0.95rem;">🔁 We\'d Go Back Here! (' + returnList.length + ')</h3>' +
+    (returnList.length===0 ? '<div class="empty-state"><span>💭</span>No restaurants where both said "Would Go Again" yet!</div>' :
+    returnList.map(({r,rv1,rv2,combined},idx) => '<div class="card"><div class="card-header"><div><div style="font-size:1.1rem;">' + (idx<3?medals[idx]:'#'+(idx+1)) + ' <strong>' + esc(r.name) + '</strong></div><div class="card-sub"><span class="tag">' + esc(r.cuisine) + '</span></div></div><div class="combined-score">' + combined + '/20</div></div><div style="margin-top:10px;font-size:0.82rem;display:grid;grid-template-columns:1fr 1fr;gap:8px;"><div><div class="text-muted">' + esc(u1.name) + '\'s fave dish:</div><div style="font-style:italic;">' + esc(rv1.favourite_dish||'—') + '</div></div><div><div class="text-muted">' + esc(u2.name) + '\'s fave dish:</div><div style="font-style:italic;">' + esc(rv2.favourite_dish||'—') + '</div></div></div></div>').join('')) + '</div>';
 }
 
-// ─────────────────────────────────────────
-// ESCAPE HTML
-// ─────────────────────────────────────────
 function esc(str) {
   if (!str) return '';
-  return String(str)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;');
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 }
 
 // ─────────────────────────────────────────
-// INIT
+// NOTIFICATIONS
 // ─────────────────────────────────────────
+const VAPID_PUBLIC = 'BFvpuKeKiAHxAQa1jVIcqvxA673TQCybkSY7TemB8_tV3hNg2No0EM3MMtOBaOqPvnZu0fmdvpASwUf1li___ss';
+let notifDropdownOpen = false;
+let notifPollTimer = null;
+
+async function initNotifications() {
+  if (!STATE.currentUser) return;
+  if ('serviceWorker' in navigator) { try { await navigator.serviceWorker.register('/sw.js'); } catch(e) {} }
+  if ('Notification' in window && Notification.permission==='default') { Notification.requestPermission(); }
+  await refreshNotifBell();
+  if (notifPollTimer) clearInterval(notifPollTimer);
+  notifPollTimer = setInterval(refreshNotifBell, 15000);
+}
+
+async function createNotification(forUser, message, type) {
+  if (!forUser) return;
+  try { await dbInsert('notifications',{id:uuid(),user_name:forUser,message,type,read:false}); } catch(e) {}
+}
+
+async function fetchNotifications() {
+  if (!STATE.currentUser) return [];
+  try { return (await dbGet('notifications','user_name=eq.'+encodeURIComponent(STATE.currentUser)+'&order=created_at.desc&limit=25')) || []; } catch(e) { return []; }
+}
+
+async function refreshNotifBell() {
+  const wrapper = document.getElementById('notifBellWrapper');
+  if (!wrapper || !STATE.currentUser) return;
+  const notifs = await fetchNotifications();
+  const unread = notifs.filter(n => !n.read).length;
+  wrapper.innerHTML = '<div class="notif-bell" onclick="toggleNotifDropdown()">🔔' + (unread>0?'<span class="notif-badge">'+(unread>9?'9+':unread)+'</span>':'') + '</div>' +
+    '<div class="notif-dropdown" id="notifDropdown" style="display:none;">' +
+    '<div class="notif-dropdown-header"><strong>🔔 Notifications</strong>' + (unread>0?'<button class="notif-mark-read" onclick="markNotifsRead(event)">Mark all read</button>':'') + '</div>' +
+    (notifs.length===0 ? '<div class="notif-empty">No notifications yet</div>' :
+      notifs.map(n => '<div class="notif-item ' + (n.read?'':'unread') + '"><div>' + esc(n.message) + '</div><div class="notif-item-time">' + new Date(n.created_at).toLocaleString() + '</div></div>').join('')) +
+    '</div>';
+  if (notifDropdownOpen) { const dd=document.getElementById('notifDropdown'); if (dd) dd.style.display='block'; }
+}
+
+async function markNotifsRead(e) {
+  if (e) e.stopPropagation();
+  if (!STATE.currentUser) return;
+  try { await dbUpdate('notifications','user_name=eq.'+encodeURIComponent(STATE.currentUser)+'&read=eq.false',{read:true}); await refreshNotifBell(); } catch(e) {}
+}
+
+function toggleNotifDropdown() {
+  notifDropdownOpen = !notifDropdownOpen;
+  const dd = document.getElementById('notifDropdown');
+  if (dd) dd.style.display = notifDropdownOpen ? 'block' : 'none';
+  if (notifDropdownOpen) markNotifsRead(null);
+}
+
+document.addEventListener('click', function(e) {
+  const wrapper = document.getElementById('notifBellWrapper');
+  if (wrapper && !wrapper.contains(e.target)) {
+    notifDropdownOpen = false;
+    const dd = document.getElementById('notifDropdown');
+    if (dd) dd.style.display = 'none';
+  }
+});
+
+function getOtherUser() {
+  return STATE.users.find(u => u.name!==STATE.currentUser)?.name || null;
+}
+
+const LOAD_STEPS_KEYS = ['connect','users','wishlist','restaurants'];
+
 async function init() {
-  // Reset loading screen to initial state for retries
-  const spinner = document.getElementById('loading-spinner');
-  if (spinner) spinner.style.display = 'block';
-  const stepEl = document.getElementById('loading-step');
-  if (stepEl) stepEl.textContent = 'Connecting to database…';
-  LOAD_STEPS.forEach(s => {
-    const el = document.getElementById(`lstep-${s}`);
-    if (!el) return;
-    el.className = s === 'connect' ? 'active' : 'pending';
-    const labels = {
-      connect: '⏳ Connecting to database…',
-      users: '⏳ Loading users…',
-      wishlist: '⏳ Loading wishlist…',
-      restaurants: '⏳ Loading restaurants & reviews…'
-    };
-    el.textContent = labels[s];
-  });
-
-  document.getElementById('app').style.display = 'none';
+  document.getElementById('app').style.display='none';
   showLoading(true);
-
   try {
     await loadAllData(true);
-
-    // Restore session
     const savedUser = getSession('currentUser');
-    if (savedUser && STATE.users.some(u => u.name === savedUser)) {
-      STATE.currentUser = savedUser;
-    }
-
+    if (savedUser && STATE.users.some(u => u.name===savedUser)) { STATE.currentUser = savedUser; }
     showLoading(false);
     setConnectionStatus(true);
-    document.getElementById('app').style.display = 'block';
+    document.getElementById('app').style.display='block';
     render();
+    if (STATE.currentUser) initNotifications();
   } catch(e) {
-    const msg = e.message.includes('timed out')
-      ? 'Could not connect to database. The request timed out after 10 seconds. Please check your internet connection or Supabase project status.'
-      : `Could not connect to database: ${e.message}`;
+    const msg = e.message.includes('timed out') ? 'Could not connect to database. Request timed out.' : 'Could not connect to database: '+e.message;
     showFatalError(msg, true);
   }
 }
- 
 
-// Periodic refresh every 30s to keep data in sync across devices
 setInterval(async () => {
   if (!STATE.currentUser) return;
-  try {
-    await withTimeout(loadAllData(), 10000);
-    setConnectionStatus(true);
-    const tc = document.getElementById('tab-content');
-    if (tc) tc.innerHTML = renderActiveTab();
-  } catch(e) {
-    setConnectionStatus(false);
-  }
+  try { await withTimeout(loadAllData(),10000); setConnectionStatus(true); const tc=document.getElementById('tab-content'); if(tc) tc.innerHTML=renderActiveTab(); refreshNotifBell(); }
+  catch(e) { setConnectionStatus(false); }
 }, 30000);
- 
 
 init();
 </script>
