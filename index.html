@@ -2,188 +2,440 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🍽️ Restaurant Tracker</title>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>🍽️ Restaurant Wishlist</title>
+<script src="https://cdn.tailwindcss.com"></script>
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  :root {    --burgundy: #6B2D3E;    --burgundy-light: #8B3D52;    --gold: #D4AF37;    --gold-light: #E8C84A;    --cream: #FFF8F0;
-    --cream-dark: #F5EDE0;    --text: #2C1810;    --text-light: #6B4F3A;    --border: #D4C4B0;
-    --success: #2D6B3E;
-    --error: #8B1A1A;
-    --locked: #9E9E9E;    --shadow: 0 2px 8px rgba(107,45,62,0.15);    --radius: 10px;  }  body { font-family: 'Georgia', serif; background: var(--cream); color: var(--text); min-height: 100vh; }  #app { max-width: 900px; margin: 0 auto; padding: 0 12px 40px; }  header { background: var(--burgundy); color: var(--cream); padding: 16px 20px; border-radius: 0 0 var(--radius) var(--radius); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; box-shadow: var(--shadow); }  header h1 { font-size: 1.4rem; letter-spacing: 0.5px; }  header h1 span { color: var(--gold); }  #user-info { display: flex; align-items: center; gap: 10px; font-size: 0.85rem; }  #user-info span { background: rgba(212,175,55,0.2); padding: 4px 10px; border-radius: 20px; border: 1px solid var(--gold); }  button { cursor: pointer; border: none; border-radius: 6px; font-family: 'Georgia', serif; transition: all 0.2s; }  .btn { padding: 8px 16px; font-size: 0.85rem; }  .btn-primary { background: var(--burgundy); color: var(--cream); }  .btn-primary:hover { background: var(--burgundy-light); }  .btn-gold { background: var(--gold); color: var(--text); font-weight: bold; }  .btn-gold:hover { background: var(--gold-light); }  .btn-sm { padding: 5px 10px; font-size: 0.78rem; }  .btn-danger { background: #8B1A1A; color: white; }  .btn-danger:hover { background: #A52020; }  .btn-outline { background: transparent; border: 1px solid var(--burgundy); color: var(--burgundy); }  .btn-outline:hover { background: var(--burgundy); color: var(--cream); }  .btn-switch { background: rgba(255,255,255,0.15); color: var(--cream); border: 1px solid rgba(255,255,255,0.3); padding: 5px 12px; font-size: 0.8rem; border-radius: 20px; }  .btn-switch:hover { background: rgba(255,255,255,0.25); }  button:disabled { opacity: 0.5; cursor: not-allowed; }  #tabs { display: flex; gap: 4px; margin: 20px 0 0; background: var(--cream-dark); padding: 6px; border-radius: var(--radius); border: 1px solid var(--border); }  .tab-btn { flex: 1; padding: 9px 6px; font-size: 0.78rem; background: transparent; color: var(--text-light); border-radius: 6px; text-align: center; transition: all 0.2s; line-height: 1.3; }  .tab-btn:hover { background: rgba(107,45,62,0.1); color: var(--burgundy); }
-  .tab-btn.active { background: var(--burgundy); color: var(--cream); font-weight: bold; }  .card { background: white; border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; margin-bottom: 12px; box-shadow: var(--shadow); }  .card-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; flex-wrap: wrap; }  .card-title { font-size: 1.05rem; font-weight: bold; color: var(--burgundy); }  .card-sub { font-size: 0.8rem; color: var(--text-light); margin-top: 2px; }  .badge { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: 0.72rem; background: var(--cream-dark); color: var(--text-light); border: 1px solid var(--border); }  .form-group { margin-bottom: 14px; }  label { display: block; font-size: 0.82rem; color: var(--text-light); margin-bottom: 4px; font-weight: bold; }  input[type=text], input[type=number], input[type=password], textarea, select { width: 100%; padding: 8px 10px; border: 1px solid var(--border); border-radius: 6px; font-family: 'Georgia', serif; font-size: 0.88rem; background: var(--cream); color: var(--text); transition: border-color 0.2s; }
-  input:focus, textarea:focus, select:focus { outline: none; border-color: var(--burgundy); }  input:disabled, textarea:disabled, select:disabled { background: #f0f0f0; color: var(--locked); cursor: not-allowed; }  textarea { resize: vertical; min-height: 60px; }  .form-box { background: var(--cream-dark); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; margin-bottom: 20px; }  .form-box h3 { font-size: 0.95rem; color: var(--burgundy); margin-bottom: 12px; }
-  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }  @media(max-width: 500px) { .form-row { grid-template-columns: 1fr; } }  .scores-section { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }  @media(max-width: 480px) { .scores-section { grid-template-columns: 1fr; } }
-  .score-box { background: var(--cream-dark); border: 1px solid var(--border); border-radius: 8px; padding: 10px; }  .score-box h4 { font-size: 0.8rem; color: var(--text-light); margin-bottom: 6px; }  .score-display { font-size: 1.4rem; font-weight: bold; color: var(--burgundy); }  .score-display.hidden-score { color: var(--locked); }  .score-input-row { display: flex; align-items: center; gap: 6px; }  .score-input-row input { width: 60px; text-align: center; }  .review-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px; }  @media(max-width: 520px) { .review-grid { grid-template-columns: 1fr; } }  .review-col { background: var(--cream-dark); border: 1px solid var(--border); border-radius: 8px; padding: 12px; }  .review-col h4 { font-size: 0.82rem; font-weight: bold; color: var(--burgundy); margin-bottom: 8px; }  .review-col.locked { opacity: 0.75; }  .review-field { margin-bottom: 8px; font-size: 0.82rem; }  .review-field label { color: var(--text-light); margin-bottom: 2px; }  .rank-card { position: relative; }  .rank-num { position: absolute; top: 12px; right: 14px; font-size: 1.5rem; }  .combined-score { display: inline-block; background: var(--burgundy); color: var(--cream); padding: 3px 10px; border-radius: 20px; font-size: 0.85rem; font-weight: bold; margin-top: 4px; }  .stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }  @media(max-width: 480px) { .stats-row { grid-template-columns: 1fr; } }  .stat-box { background: var(--burgundy); color: var(--cream); border-radius: var(--radius); padding: 14px; text-align: center; }  .stat-num { font-size: 1.6rem; font-weight: bold; color: var(--gold); }  .stat-label { font-size: 0.75rem; opacity: 0.85; margin-top: 2px; }  .banner { padding: 8px 14px; border-radius: 6px; font-size: 0.82rem; margin-bottom: 10px; }  .banner-info { background: rgba(212,175,55,0.15); border: 1px solid var(--gold); color: #7A5C00; }  .banner-success { background: rgba(45,107,62,0.1); border: 1px solid #2D6B3E; color: var(--success); }  .banner-error { background: rgba(139,26,26,0.1); border: 1px solid #8B1A1A; color: var(--error); }  .banner-waiting { background: rgba(107,45,62,0.08); border: 1px solid var(--burgundy); color: var(--burgundy); }  #loading { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(255,248,240,0.95); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 1000; gap: 14px; }  .spinner { width: 40px; height: 40px; border: 4px solid var(--cream-dark); border-top-color: var(--burgundy); border-radius: 50%; animation: spin 0.7s linear infinite; }
-  @keyframes spin { to { transform: rotate(360deg); } }  #status-indicator { position: fixed; bottom: 14px; right: 14px; font-size: 0.75rem; background: white; border: 1px solid var(--border); border-radius: 20px; padding: 4px 10px; box-shadow: var(--shadow); z-index: 500; display: none; }  .screen { min-height: 80vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }  .screen-card { background: white; border: 1px solid var(--border); border-radius: 14px; padding: 28px; width: 100%; max-width: 420px; box-shadow: var(--shadow); }  .screen-card h2 { color: var(--burgundy); font-size: 1.3rem; margin-bottom: 6px; }  .screen-card p { font-size: 0.85rem; color: var(--text-light); margin-bottom: 18px; }  .user-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 16px 0; }  .user-card { border: 2px solid var(--border); border-radius: 10px; padding: 16px; text-align: center; cursor: pointer; transition: all 0.2s; background: var(--cream); }  .user-card:hover { border-color: var(--burgundy); background: rgba(107,45,62,0.05); }  .user-card.selected { border-color: var(--burgundy); background: rgba(107,45,62,0.1); }  .user-card-avatar { font-size: 2rem; margin-bottom: 6px; }  .user-card-name { font-weight: bold; color: var(--burgundy); font-size: 0.95rem; }  #pin-section { margin-top: 14px; }  .setup-step { margin-bottom: 22px; padding-bottom: 22px; border-bottom: 1px solid var(--border); }  .setup-step:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }  .setup-step h3 { color: var(--burgundy); font-size: 0.95rem; margin-bottom: 10px; }  .empty-state { text-align: center; padding: 40px 20px; color: var(--text-light); font-size: 0.9rem; }  .empty-state span { font-size: 2.5rem; display: block; margin-bottom: 10px; }  .divider { border: none; border-top: 1px solid var(--border); margin: 14px 0; }  .flex-gap { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }  .text-sm { font-size: 0.8rem; }  .text-muted { color: var(--text-light); }
-  .mt-8 { margin-top: 8px; }  .mt-12 { margin-top: 12px; }  .mb-12 { margin-bottom: 12px; }  .tag { display: inline-block; background: var(--cream-dark); color: var(--text-light); border: 1px solid var(--border); border-radius: 4px; padding: 1px 7px; font-size: 0.75rem; }  .would-yes { color: var(--success); font-weight: bold; }  .would-no { color: var(--error); }  #error-toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #8B1A1A; color: white; padding: 10px 20px; border-radius: 8px; font-size: 0.85rem; z-index: 999; display: none; box-shadow: 0 4px 12px rgba(0,0,0,0.2); max-width: 90%; text-align: center; }
-</style></head><body><div id="loading">
-  <div class="spinner"></div>  <div style="font-size:0.95rem;color:var(--burgundy);font-weight:bold;">Loading…</div>
+  * { box-sizing: border-box; margin: 0; padding: 0; }  body { font-family: 'Segoe UI', sans-serif; background: #FFF8F0; color: #2D2D2D; min-height: 100vh; }
+  #loading {    position: fixed; inset: 0; background: #FFF8F0;    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px;    z-index: 9999;  }  .spinner {    width: 44px; height: 44px;    border: 5px solid #F2C4CE;    border-top-color: #6B2D3E;    border-radius: 50%;    animation: spin 0.8s linear infinite;  }  @keyframes spin { to { transform: rotate(360deg); } }
+  #error-banner {    display: none; position: fixed; top: 0; left: 0; right: 0;    background: #c0392b; color: #fff; text-align: center;    padding: 10px 16px; font-size: 0.9rem; z-index: 10000;  }
+
+  header {    background: linear-gradient(135deg, #6B2D3E 0%, #A0415A 100%);    color: #fff; padding: 16px 20px 12px; text-align: center;    box-shadow: 0 2px 8px rgba(107,45,62,0.3);
+  }  header h1 { font-size: 1.5rem; font-weight: 800; letter-spacing: 0.5px; }  header p { font-size: 0.82rem; opacity: 0.85; margin-top: 2px; }
+  .tab-bar {    display: flex; background: #fff;    border-bottom: 2px solid #F2C4CE;    position: sticky; top: 0; z-index: 100;
+  }
+  .tab-btn {    flex: 1; padding: 11px 4px; font-size: 0.82rem; font-weight: 700;    border: none; background: none; cursor: pointer; color: #888;
+    transition: color 0.2s, border-bottom 0.2s;    border-bottom: 3px solid transparent;
+  }
+  .tab-btn.active { color: #6B2D3E; border-bottom: 3px solid #6B2D3E; }
+  .main-content { padding: 16px; max-width: 700px; margin: 0 auto; }
+
+  .fab {    position: fixed; bottom: 24px; right: 20px;
+    background: #6B2D3E; color: #fff; border: none;    width: 54px; height: 54px; border-radius: 50%; font-size: 1.6rem;    cursor: pointer; box-shadow: 0 4px 14px rgba(107,45,62,0.4);    display: flex; align-items: center; justify-content: center;
+    transition: transform 0.15s, box-shadow 0.15s;
+    z-index: 200;
+  }  .fab:hover { transform: scale(1.08); box-shadow: 0 6px 18px rgba(107,45,62,0.5); }
+
+  .card {    background: #fff; border-radius: 12px;    box-shadow: 0 2px 8px rgba(0,0,0,0.07);    padding: 14px 16px; margin-bottom: 12px;    transition: box-shadow 0.2s;
+  }  .card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.11); }
+
+  .card-title { font-size: 1rem; font-weight: 700; color: #2D2D2D; }  .card-sub { font-size: 0.8rem; color: #888; margin-top: 2px; }
+  .tag {    display: inline-block; padding: 2px 9px; border-radius: 20px;    font-size: 0.72rem; font-weight: 700; margin-right: 4px; margin-top: 4px;  }  .tag-cuisine { background: #FDE8EE; color: #6B2D3E; }  .tag-city { background: #E8F4FD; color: #1a6b9e; }  .tag-score { background: #FFF3CD; color: #856404; }  .tag-status-pending { background: #FFF3CD; color: #856404; }  .tag-status-done { background: #D4EDDA; color: #155724; }
+  .btn {    border: none; border-radius: 8px; padding: 7px 14px;    font-size: 0.8rem; font-weight: 700; cursor: pointer;    transition: opacity 0.15s, transform 0.1s;
+  }  .btn:hover { opacity: 0.88; transform: scale(1.03); }
+  .btn-primary { background: #6B2D3E; color: #fff; }  .btn-danger { background: #c0392b; color: #fff; }  .btn-success { background: #27ae60; color: #fff; }  .btn-secondary { background: #eee; color: #444; }  .btn-sm { padding: 4px 10px; font-size: 0.74rem; }
+  .modal-overlay {    display: none; position: fixed; inset: 0;    background: rgba(0,0,0,0.45); z-index: 1000;    align-items: center; justify-content: center;
+  }  .modal-overlay.open { display: flex; }  .modal {    background: #fff; border-radius: 14px;    padding: 24px 22px; width: 92vw; max-width: 480px;    box-shadow: 0 8px 32px rgba(0,0,0,0.18);    max-height: 90vh; overflow-y: auto;  }  .modal h2 { font-size: 1.15rem; font-weight: 800; color: #6B2D3E; margin-bottom: 14px; }
+  .form-group { margin-bottom: 13px; }  .form-group label { display: block; font-size: 0.8rem; font-weight: 700; color: #555; margin-bottom: 4px; }  .form-group input, .form-group select, .form-group textarea {    width: 100%; border: 1.5px solid #E0C8CE; border-radius: 8px;    padding: 8px 10px; font-size: 0.88rem; background: #FFF8F0;    transition: border-color 0.2s;
+  }  .form-group input:focus, .form-group select:focus, .form-group textarea:focus {    outline: none; border-color: #6B2D3E;  }
+  .star-row { display: flex; gap: 6px; font-size: 1.5rem; cursor: pointer; }  .star-row span { transition: transform 0.1s; }  .star-row span:hover { transform: scale(1.2); }
+
+  .empty-state {    text-align: center; padding: 48px 20px; color: #aaa;
+  }  .empty-state .emoji { font-size: 3rem; margin-bottom: 10px; }
+  .empty-state p { font-size: 0.9rem; }
+
+  .search-bar {    width: 100%; border: 1.5px solid #E0C8CE; border-radius: 8px;    padding: 8px 12px; font-size: 0.88rem; background: #fff;    margin-bottom: 14px; transition: border-color 0.2s;
+  }  .search-bar:focus { outline: none; border-color: #6B2D3E; }
+  .section-header {
+    font-size: 0.78rem; font-weight: 800; color: #6B2D3E;    letter-spacing: 1px; text-transform: uppercase;    margin-bottom: 10px; margin-top: 4px;  }
+  .score-row { display: flex; align-items: center; gap: 8px; margin-top: 8px; flex-wrap: wrap; }  .score-label { font-size: 0.75rem; color: #888; width: 80px; text-align: right; }  .score-bar-wrap { flex: 1; min-width: 80px; background: #F2C4CE; border-radius: 6px; height: 8px; }  .score-bar { height: 8px; border-radius: 6px; background: linear-gradient(90deg, #6B2D3E, #A0415A); }  .score-val { font-size: 0.75rem; font-weight: 700; color: #6B2D3E; width: 26px; }
+  .review-stars { color: #F4A825; font-size: 1.05rem; letter-spacing: 1px; }
+  .user-chip {    display: inline-flex; align-items: center; gap: 5px;    background: #F2C4CE; color: #6B2D3E;    border-radius: 20px; padding: 3px 10px;    font-size: 0.76rem; font-weight: 700; margin: 2px;  }
+  .stats-grid {
+    display: grid; grid-template-columns: repeat(2, 1fr);    gap: 10px; margin-bottom: 16px;
+  }  .stat-card {    background: #fff; border-radius: 10px;    padding: 14px; text-align: center;    box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+  }  .stat-num { font-size: 1.8rem; font-weight: 800; color: #6B2D3E; }  .stat-label { font-size: 0.75rem; color: #888; margin-top: 2px; }
+  .filter-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }  .filter-chip {    padding: 4px 12px; border-radius: 20px; border: 1.5px solid #E0C8CE;    font-size: 0.76rem; font-weight: 700; cursor: pointer;    background: #fff; color: #888; transition: all 0.15s;
+  }  .filter-chip.active { background: #6B2D3E; color: #fff; border-color: #6B2D3E; }
+
+  .desire-item {
+    display: flex; justify-content: space-between; align-items: center;    padding: 8px 0; border-bottom: 1px solid #F2C4CE;
+  }
+  .desire-item:last-child { border-bottom: none; }
+  .progress-ring { transform: rotate(-90deg); }  .progress-bg { fill: none; stroke: #F2C4CE; stroke-width: 6; }  .progress-fg { fill: none; stroke: #6B2D3E; stroke-width: 6; stroke-linecap: round; transition: stroke-dashoffset 0.5s; }
+</style></head><body>
+
+<div id="loading">  <div class="spinner"></div>  <div style="font-size:0.88rem;color:#6B2D3E;font-weight:bold;">Loading…</div></div>
+<div id="error-banner"></div>
+<div id="app" style="display:none;">  <header>    <h1>🍽️ Restaurant Wishlist</h1>    <p id="header-sub">Track, score & review your dining adventures</p>  </header>
+  <div class="tab-bar">    <button class="tab-btn active" onclick="switchTab(0)">🗺️ Wishlist</button>    <button class="tab-btn" onclick="switchTab(1)">⏳ Pending</button>
+    <button class="tab-btn" onclick="switchTab(2)">⭐ Reviews</button>    <button class="tab-btn" onclick="switchTab(3)">📊 Stats</button>
+  </div>
+
+  <div class="main-content" id="main-content"></div>
+  <button class="fab" id="fab-btn" onclick="onFab()">＋</button>
 </div>
-<div id="status-indicator">🟢 Connected</div>
-<div id="error-toast"></div><div id="app" style="display:none;"></div>
-<script>const SUPA_URL = 'https://oofjwdtcasmderyduzki.supabase.co';const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9vZmp3ZHRjYXNtZGVyeWR1emtpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkzOTQ3OTgsImV4cCI6MjEwNDk3MDc5OH0.H18m3Ooip-At6jZlIngac26EB5_cL2LMLwEIX7csHkY';const SUPA_REST = SUPA_URL + '/rest/v1/';
-const STATE = {  currentUser: null, users: [], wishlist: [], desireScores: [],  pendingReviews: [], reviews: [], activeTab: 0, loginSelectedUser: null
+<!-- Add/Edit Wishlist Modal -->
+<div class="modal-overlay" id="modal-wishlist">
+  <div class="modal">    <h2 id="modal-wishlist-title">➕ Add to Wishlist</h2>
+    <div class="form-group">
+      <label>Restaurant Name *</label>      <input type="text" id="w-name" placeholder="e.g. Noma, Le Bernardin…"/>
+    </div>    <div class="form-group">
+      <label>Cuisine</label>
+      <input type="text" id="w-cuisine" placeholder="e.g. Japanese, Italian…"/>
+    </div>
+    <div class="form-group">
+      <label>City</label>
+      <input type="text" id="w-city" placeholder="e.g. Tokyo, Paris…"/>
+    </div>
+    <div class="form-group">
+      <label>Notes</label>      <textarea id="w-notes" rows="2" placeholder="Why do you want to go? Tips…"></textarea>
+    </div>
+    <div class="form-group">      <label>Price Range</label>      <select id="w-price">
+        <option value="">—</option>        <option value="$">$ Budget</option>        <option value="$$">$$ Mid-range</option>        <option value="$$$">$$$ Upscale</option>        <option value="$$$$">$$$$ Fine Dining</option>
+      </select>
+    </div>    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:6px;">      <button class="btn btn-secondary" onclick="closeModal('modal-wishlist')">Cancel</button>      <button class="btn btn-primary" onclick="saveWishlist()">Save</button>
+    </div>
+  </div></div>
+
+<!-- Desire Score Modal --><div class="modal-overlay" id="modal-desire">
+  <div class="modal">
+    <h2>🔥 Rate Your Desire</h2>    <p style="font-size:0.83rem;color:#888;margin-bottom:14px;">How much do you want to visit <strong id="desire-rest-name"></strong>?</p>    <div id="desire-scores-form"></div>    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px;">      <button class="btn btn-secondary" onclick="closeModal('modal-desire')">Cancel</button>      <button class="btn btn-primary" onclick="saveDesireScores()">Save Scores</button>    </div>  </div>
+</div>
+<!-- Review Modal --><div class="modal-overlay" id="modal-review">  <div class="modal">    <h2 id="modal-review-title">✍️ Write a Review</h2>    <p style="font-size:0.83rem;color:#888;margin-bottom:14px;" id="review-rest-name-label"></p>    <div class="form-group">      <label>Reviewer</label>      <select id="r-user"></select>
+    </div>
+    <div class="form-group">
+      <label>Overall Stars</label>      <div class="star-row" id="star-row">        <span onclick="setStar(1)">★</span>        <span onclick="setStar(2)">★</span>        <span onclick="setStar(3)">★</span>        <span onclick="setStar(4)">★</span>        <span onclick="setStar(5)">★</span>
+      </div>    </div>    <div class="form-group">
+      <label>Review Text</label>      <textarea id="r-text" rows="3" placeholder="Share your experience…"></textarea>    </div>
+    <div class="form-group">      <label>Food Score (1–10)</label>      <input type="number" id="r-food" min="1" max="10" placeholder="7"/>
+    </div>
+    <div class="form-group">
+      <label>Service Score (1–10)</label>      <input type="number" id="r-service" min="1" max="10" placeholder="7"/>
+    </div>
+    <div class="form-group">
+      <label>Ambiance Score (1–10)</label>      <input type="number" id="r-ambiance" min="1" max="10" placeholder="7"/>    </div>
+    <div class="form-group">      <label>Value Score (1–10)</label>      <input type="number" id="r-value" min="1" max="10" placeholder="7"/>
+    </div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:6px;">      <button class="btn btn-secondary" onclick="closeModal('modal-review')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveReview()">Save Review</button>
+    </div>
+  </div>
+</div>
+<!-- View Reviews Modal --><div class="modal-overlay" id="modal-view-reviews">
+  <div class="modal">
+    <h2 id="vr-title">Reviews</h2>    <div id="vr-content"></div>    <div style="text-align:right;margin-top:14px;">      <button class="btn btn-secondary" onclick="closeModal('modal-view-reviews')">Close</button>
+    </div>
+  </div></div>
+
+<script>const SUPABASE_URL = 'https://oofjwdtcasmderyduzki.supabase.co/rest/v1';const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9vZmp3ZHRjYXNtZGVyeWR1emtpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDk1NzMxMTUsImV4cCI6MjA2NTE0OTExNX0.QHiRalAGCNQbKP4JQjLGMRGBqUqSn8aFt-H0JbXS0I8';
+
+const STATE = {
+  activeTab: 0,  wishlist: [],  pendingReviews: [],
+  restaurants: [],
+  reviews: [],
+  users: [],
+  desireScores: [],  wishlistFilter: 'all',  wishlistSearch: '',
+  reviewSearch: '',  editingWishlistId: null,
+  currentPendingId: null,
+  currentRestaurantId: null,  currentStarRating: 0,
 };
-function getSession(k) { try { return sessionStorage.getItem(k); } catch(e) { return null; } }function setSession(k, v) { try { sessionStorage.setItem(k, v); } catch(e) {} }function clearSession(k) { try { sessionStorage.removeItem(k); } catch(e) {} }
-async function dbGet(table, query='') {  const url = SUPA_REST + table + (query ? '?' + query : '');  const res = await fetch(url, { headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY } });  const text = await res.text();  if (!res.ok) throw new Error('GET ' + table + ' failed: ' + res.status + ' — ' + text);
-  return JSON.parse(text);
-}
 
-async function dbInsert(table, data) {
-  const url = SUPA_REST + table;  const res = await fetch(url, { method: 'POST', headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=representation' }, body: JSON.stringify(data) });  const text = await res.text();  if (!res.ok) throw new Error('INSERT ' + table + ' failed: ' + res.status + ' — ' + text);
-  return JSON.parse(text);
-}
-async function dbUpdate(table, query, data) {
-  const url = SUPA_REST + table + '?' + query;  const res = await fetch(url, { method: 'PATCH', headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=representation' }, body: JSON.stringify(data) });  const text = await res.text();  if (!res.ok) throw new Error('UPDATE ' + table + ' failed: ' + res.status + ' — ' + text);  return JSON.parse(text);}
-async function dbDelete(table, query) {  const url = SUPA_REST + table + '?' + query;  const res = await fetch(url, { method: 'DELETE', headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=representation' } });  if (!res.ok) { const text = await res.text(); throw new Error('DELETE ' + table + ' failed: ' + res.status + ' — ' + text); }
-  return true;
-}
-function showLoading(v) { const el = document.getElementById('loading'); if (el) el.style.display = v ? 'flex' : 'none'; }function showError(msg) { const t = document.getElementById('error-toast'); t.textContent = msg; t.style.display = 'block'; setTimeout(() => { t.style.display = 'none'; }, 4000); }function setConnectionStatus(connected) { const ind = document.getElementById('status-indicator'); if (!ind) return; ind.style.display = 'block'; ind.textContent = connected ? '🟢 Connected' : '🔴 Disconnected'; ind.style.color = connected ? '#2D6B3E' : '#8B1A1A'; }
-function showFatalError(msg) {  showLoading(false);
-  setConnectionStatus(false);
-  document.getElementById('app').style.display = 'block';  document.getElementById('app').innerHTML = `<div class="screen"><div class="screen-card"><h2>⚠️ Connection Error</h2><p style="color:var(--error);margin-bottom:10px;">${esc(msg)}</p><p style="font-size:0.8rem;color:var(--text-light);">Please check your internet connection or Supabase project status, then try again.</p><button class="btn btn-primary" style="margin-top:14px;" onclick="init()">🔄 Retry Connection</button></div></div>`;
-}
-function uuid() { return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => { const r = Math.random()*16|0; return (c==='x'?r:(r&0x3|0x8)).toString(16); }); }
-
-async function loadAllData() {  const users = await dbGet('users', 'order=created_at.asc');
-  STATE.users = users || [];  const wishlist = await dbGet('wishlist', 'order=created_at.asc');  STATE.wishlist = wishlist || [];  const [desireScores, pendingReviews, reviews] = await Promise.all([    dbGet('desire_scores', 'order=created_at.asc'),
-    dbGet('pending_reviews', 'order=created_at.asc'),
-    dbGet('reviews', 'order=created_at.asc')
-  ]);  STATE.desireScores = desireScores || [];  STATE.pendingReviews = pendingReviews || [];  STATE.reviews = reviews || [];}
-function getCompletedRestaurants() {  if (STATE.users.length < 2) return [];  const [u1, u2] = STATE.users;  return STATE.pendingReviews.filter(pr => {    const rr = STATE.reviews.filter(r => r.restaurant_id === pr.id);    return rr.some(r => r.user_name === u1.name) && rr.some(r => r.user_name === u2.name);
+function uuid() {  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {    const r = Math.random() * 16 | 0;
+    return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
   });}
 
-function getPendingOnly() {  const completed = getCompletedRestaurants().map(c => c.id);
-  return STATE.pendingReviews.filter(pr => !completed.includes(pr.id));
+function showLoading(v) {  document.getElementById('loading').style.display = v ? 'flex' : 'none';  document.getElementById('app').style.display = v ? 'none' : 'block';
+}
+function showError(msg) {  const el = document.getElementById('error-banner');  el.textContent = msg;
+  el.style.display = 'block';  setTimeout(() => { el.style.display = 'none'; }, 5000);
 }
 
-function render() {  const app = document.getElementById('app');  if (!app) return;  if (!STATE.currentUser) {    app.innerHTML = STATE.users.length < 2 ? renderSetup() : renderLogin();    return;
-  }  app.innerHTML = renderHeader() + renderTabs() + '<div id="tab-content">' + renderActiveTab() + '</div>';
+function headers() {
+  return {    'apikey': SUPABASE_KEY,    'Authorization': 'Bearer ' + SUPABASE_KEY,
+    'Content-Type': 'application/json',    'Prefer': 'return=representation'
+  };
+}
+async function dbGet(table, query = '') {  const url = `${SUPABASE_URL}/${table}${query ? '?' + query : ''}`;  const res = await fetch(url, { headers: headers() });  if (!res.ok) throw new Error(await res.text());  return res.json();
+}
+async function dbInsert(table, data) {  const url = `${SUPABASE_URL}/${table}`;
+  const res = await fetch(url, {    method: 'POST', headers: headers(), body: JSON.stringify(data)  });  if (!res.ok) throw new Error(await res.text());
+  return res.json();
+}
+async function dbUpdate(table, query, data) {  const url = `${SUPABASE_URL}/${table}?${query}`;  const res = await fetch(url, {    method: 'PATCH', headers: headers(), body: JSON.stringify(data)  });  if (!res.ok) throw new Error(await res.text());  return res.json();
 }
 
-function renderSetup() {  const existing = STATE.users.length;  const setupNum = existing + 1;  return `<div class="screen"><div class="screen-card"><h2>🍽️ Welcome to Restaurant Tracker</h2><p>Set up exactly 2 user profiles to get started.</p>${existing > 0 ? `<div class="banner banner-success">✓ User 1 created: <strong>${STATE.users[0].name}</strong></div>` : ''}<div class="setup-step"><h3>Create User ${setupNum}</h3><div class="form-group"><label>Name</label><input type="text" id="setup-name" placeholder="e.g. Alex" maxlength="30"></div><div class="form-group"><label>4-Digit PIN</label><input type="password" id="setup-pin" placeholder="••••" maxlength="4" inputmode="numeric"></div><button class="btn btn-primary" onclick="submitSetup()">Create User ${setupNum}</button></div></div></div>`;
-}
-async function submitSetup() {  const name = (document.getElementById('setup-name').value||'').trim();  const pin = (document.getElementById('setup-pin').value||'').trim();  if (!name) return showError('Please enter a name.');  if (!/^\d{4}$/.test(pin)) return showError('PIN must be exactly 4 digits.');  if (STATE.users.some(u => u.name.toLowerCase()===name.toLowerCase())) return showError('That name is already taken.');
-  showLoading(true);  try { await dbInsert('users', {id:uuid(),name,pin}); await loadAllData(); render(); }  catch(e) { showError('Failed to create user: '+e.message); }
-  finally { showLoading(false); }
+async function dbDelete(table, query) {  const url = `${SUPABASE_URL}/${table}?${query}`;
+  const res = await fetch(url, { method: 'DELETE', headers: headers() });  if (!res.ok) throw new Error(await res.text());
+  return true;
 }
 
-function renderLogin() {  const selected = STATE.loginSelectedUser;  return `<div class="screen"><div class="screen-card"><h2>🍽️ Restaurant Tracker</h2><p>Select your profile to log in.</p><div class="user-cards">${STATE.users.map((u,i)=>`<div class="user-card ${selected===u.name?'selected':''}" onclick="selectLoginUser('${esc(u.name)}')"><div class="user-card-avatar">${['🧑','👤'][i]}</div><div class="user-card-name">${esc(u.name)}</div></div>`).join('')}</div>${selected?`<div id="pin-section"><div class="form-group"><label>PIN for ${esc(selected)}</label><input type="password" id="login-pin" placeholder="••••" maxlength="4" inputmode="numeric" onkeydown="if(event.key==='Enter') submitLogin()"></div><button class="btn btn-gold" onclick="submitLogin()">Log In as ${esc(selected)}</button></div>`:''}</div></div>`;
+async function loadAllData() {  const [users, wishlist, pendingReviews, restaurants, reviews, desireScores] = await Promise.all([    dbGet('users', 'order=name.asc'),    dbGet('wishlist', 'order=created_at.desc'),    dbGet('pending_reviews', 'order=visited_at.desc'),    dbGet('restaurants', 'order=name.asc'),    dbGet('reviews', 'order=created_at.desc'),
+    dbGet('desire_scores', 'order=created_at.desc'),
+  ]);  STATE.users = users || [];
+  STATE.wishlist = wishlist || [];
+  STATE.pendingReviews = pendingReviews || [];
+  STATE.restaurants = restaurants || [];  STATE.reviews = reviews || [];
+  STATE.desireScores = desireScores || [];}
+function render() {  renderTabs();
+  const mc = document.getElementById('main-content');  if (STATE.activeTab === 0) mc.innerHTML = renderWishlistTab();  else if (STATE.activeTab === 1) mc.innerHTML = renderPendingTab();  else if (STATE.activeTab === 2) mc.innerHTML = renderReviewsTab();  else if (STATE.activeTab === 3) mc.innerHTML = renderStatsTab();  updateFab();
 }
-function selectLoginUser(name) { STATE.loginSelectedUser=name; render(); setTimeout(()=>{const el=document.getElementById('login-pin');if(el)el.focus();},50); }
-async function submitLogin() {  const name = STATE.loginSelectedUser;
-  const pin = (document.getElementById('login-pin').value||'').trim();  if (!pin) return showError('Enter your PIN.');
-  const user = STATE.users.find(u=>u.name===name);  if (!user) return showError('User not found.');  if (user.pin!==pin) return showError('Incorrect PIN.');  STATE.currentUser = user.name;  setSession('currentUser', user.name);  STATE.loginSelectedUser = null;
-  render();}
-
-function renderHeader() {  return `<header><h1>🍽️ <span>Restaurant</span> Tracker</h1><div id="user-info"><span>👤 ${esc(STATE.currentUser)}</span><button class="btn-switch" onclick="switchUser()">Switch User</button></div></header>`;
-}
-function switchUser() { STATE.currentUser=null; clearSession('currentUser'); STATE.loginSelectedUser=null; render(); }
-const TAB_LABELS = ['🍜 Wishlist','⏳ Pending','✅ Reviewed','🔁 We\'d Return'];
-
-function renderTabs() {  return `<div id="tabs">${TAB_LABELS.map((t,i)=>`<button class="tab-btn ${STATE.activeTab===i?'active':''}" onclick="setTab(${i})">${t}</button>`).join('')}</div>`;}
-
-function setTab(i) {
-  STATE.activeTab=i;  document.querySelectorAll('.tab-btn').forEach((b,idx)=>b.classList.toggle('active',idx===i));
-  const tc=document.getElementById('tab-content');  if(tc) tc.innerHTML=renderActiveTab();
+function renderTabs() {  document.querySelectorAll('.tab-btn').forEach((btn, i) => {    btn.classList.toggle('active', i === STATE.activeTab);  });
 }
 
-function renderActiveTab() {  switch(STATE.activeTab) { case 0:return renderWishlist(); case 1:return renderPending(); case 2:return renderCompleted(); case 3:return renderWouldReturn(); default:return ''; }
+function updateFab() {  const fab = document.getElementById('fab-btn');  if (STATE.activeTab === 0) { fab.style.display = 'flex'; fab.textContent = '＋'; }  else if (STATE.activeTab === 1) { fab.style.display = 'none'; }
+  else if (STATE.activeTab === 2) { fab.style.display = 'none'; }
+  else { fab.style.display = 'none'; }
+}
+function switchTab(i) {
+  STATE.activeTab = i;  render();
 }
 
-function renderWishlist() {  const sorted=[...STATE.wishlist].sort((a,b)=>getCombinedScore(b.id)-getCombinedScore(a.id));  return `<div style="padding-top:16px;">${renderAddRestaurantForm()}<h3 style="color:var(--burgundy);margin-bottom:10px;font-size:0.95rem;">🏆 Leaderboard (${sorted.length})</h3>${sorted.length===0?'<div class="empty-state"><span>🍽️</span>No restaurants yet. Add one above!</div>':''}${sorted.map((r,i)=>renderWishlistCard(r,i)).join('')}</div>`;
+function onFab() {
+  if (STATE.activeTab === 0) openAddWishlist();
 }
-
-function renderAddRestaurantForm() {  return `<div class="form-box"><h3>➕ Add New Restaurant</h3><div class="form-row"><div class="form-group"><label>Restaurant Name *</label><input type="text" id="add-name" placeholder="e.g. La Bella Italia"></div><div class="form-group"><label>Cuisine *</label><input type="text" id="add-cuisine" placeholder="e.g. Italian, Thai…"></div></div><div class="form-group"><label>Notes (optional)</label><textarea id="add-notes" placeholder="Why you want to visit…"></textarea></div><button class="btn btn-gold" onclick="addRestaurant()">Add to Wishlist</button></div>`;
-}
-function getCombinedScore(rid) { return STATE.desireScores.filter(s=>s.restaurant_id===rid).reduce((sum,s)=>sum+(s.score||0),0); }
-
-function renderWishlistCard(r,idx) {
-  const [u1,u2]=STATE.users;  const scores=STATE.desireScores.filter(s=>s.restaurant_id===r.id);  const s1=scores.find(s=>s.user_name===u1.name);  const s2=scores.find(s=>s.user_name===u2.name);  const bothScored=s1&&s2;  const combined=bothScored?(s1.score+s2.score):null;  const medals=['🥇','🥈','🥉'];  const medal=bothScored&&idx<3?medals[idx]:'';
-  function renderScoreBox(user,score) {    const mine=user.name===STATE.currentUser;    const locked=!!score;    return `<div class="score-box"><h4>${esc(user.name)} ${mine?'(you)':''}</h4>${locked?`<div class="score-display">${bothScored?score.score:'?'}</div><div class="text-sm text-muted mt-8">Submitted ✓</div>`:(mine?`<div class="score-input-row"><input type="number" id="score-${r.id}-${esc(user.name)}" min="1" max="10" placeholder="1-10"><button class="btn btn-sm btn-primary" onclick="submitScore('${r.id}','${esc(user.name)}')">Submit</button></div>`:`<div class="score-display hidden-score">?</div><div class="text-sm text-muted mt-8">Not submitted yet</div>`)}</div>`;
+// ── WISHLIST TAB ──────────────────────────────────────────function renderWishlistTab() {  const cuisines = [...new Set(STATE.wishlist.map(w => w.cuisine).filter(Boolean))];  let filtered = STATE.wishlist;  if (STATE.wishlistFilter !== 'all') filtered = filtered.filter(w => w.cuisine === STATE.wishlistFilter);  if (STATE.wishlistSearch) {    const q = STATE.wishlistSearch.toLowerCase();    filtered = filtered.filter(w =>      (w.name||'').toLowerCase().includes(q) ||      (w.cuisine||'').toLowerCase().includes(q) ||      (w.city||'').toLowerCase().includes(q)
+    );
   }
-  return `<div class="card rank-card">${medal?`<div class="rank-num">${medal}</div>`:''}<div class="card-header"><div><div class="card-title">${esc(r.name)}</div><div class="card-sub"><span class="tag">${esc(r.cuisine)}</span><span class="text-muted" style="margin-left:6px;font-size:0.75rem;">Added by ${esc(r.added_by)}</span></div>${r.notes?`<div style="font-size:0.8rem;color:var(--text-light);margin-top:4px;">${esc(r.notes)}</div>`:''}</div>${bothScored?`<div><div class="combined-score">${combined}/20</div></div>`:''}</div>${!bothScored?'<div class="banner banner-info mt-8">Scores hidden until both users submit.</div>':''}<div class="scores-section">${renderScoreBox(u1,s1)}${renderScoreBox(u2,s2)}</div><hr class="divider"><div class="flex-gap"><button class="btn btn-sm btn-outline" onclick="markVisited('${r.id}')">✓ Mark as Visited</button><button class="btn btn-sm btn-danger" onclick="deleteWishlist('${r.id}')">🗑 Delete</button></div></div>`;}
+  const filterChips = `    <div class="filter-row">      <span class="filter-chip ${STATE.wishlistFilter==='all'?'active':''}" onclick="setWishlistFilter('all')">All</span>      ${cuisines.map(c => `<span class="filter-chip ${STATE.wishlistFilter===c?'active':''}" onclick="setWishlistFilter('${esc(c)}')">${esc(c)}</span>`).join('')}
+    </div>`;
 
-async function addRestaurant() {  const name=(document.getElementById('add-name').value||'').trim();  const cuisine=(document.getElementById('add-cuisine').value||'').trim();
-  const notes=(document.getElementById('add-notes').value||'').trim();  if(!name||!cuisine) return showError('Name and cuisine are required.');
-  const nl=name.toLowerCase();  if(STATE.wishlist.some(r=>r.name.toLowerCase()===nl)) return showError(`"${name}" is already in your wishlist.`);  if(STATE.pendingReviews.some(r=>r.name.toLowerCase()===nl)) return showError(`"${name}" is already in Pending Reviews.`);
+  if (!filtered.length) {    return filterChips + `<input class="search-bar" placeholder="🔍 Search wishlist…" value="${esc(STATE.wishlistSearch)}" oninput="STATE.wishlistSearch=this.value;render()"/>    <div class="empty-state"><div class="emoji">🌟</div><p>No restaurants yet.<br/>Tap ＋ to add your first!</p></div>`;  }
+  const cards = filtered.map(w => {    const scores = STATE.desireScores.filter(d => d.restaurant_id === w.id);    const avgDesire = scores.length ? (scores.reduce((a,b) => a + (b.score||0), 0) / scores.length).toFixed(1) : null;
+    const scorersHtml = scores.length      ? scores.map(d => {          const u = STATE.users.find(u => u.id === d.user_id);          return `<span class="user-chip">${esc(u?u.name:'?')} <span style="color:#A0415A">${d.score}/10</span></span>`;
+        }).join('')      : '<span style="font-size:0.76rem;color:#bbb;">No desire scores yet</span>';
+    return `<div class="card">      <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+        <div>          <div class="card-title">${esc(w.name)}</div>          <div class="card-sub">${w.city ? esc(w.city) : ''}</div>
+          <div>            ${w.cuisine ? `<span class="tag tag-cuisine">${esc(w.cuisine)}</span>` : ''}            ${w.price_range ? `<span class="tag tag-score">${esc(w.price_range)}</span>` : ''}            ${avgDesire ? `<span class="tag tag-score">🔥 ${avgDesire}/10</span>` : ''}
+          </div>        </div>
+        <div style="display:flex;flex-direction:column;gap:5px;align-items:flex-end;">          <button class="btn btn-sm btn-primary" onclick="openDesireModal('${w.id}')">🔥 Desire</button>          <button class="btn btn-sm btn-success" onclick="markVisited('${w.id}')">✅ Visited</button>          <button class="btn btn-sm btn-secondary" onclick="openEditWishlist('${w.id}')">✏️</button>          <button class="btn btn-sm btn-danger" onclick="deleteWishlist('${w.id}')">🗑️</button>
+        </div>      </div>      ${w.notes ? `<div style="font-size:0.78rem;color:#888;margin-top:6px;font-style:italic;">"${esc(w.notes)}"</div>` : ''}      <div style="margin-top:8px;">${scorersHtml}</div>
+    </div>`;  }).join('');
+
+  return `    <input class="search-bar" placeholder="🔍 Search wishlist…" value="${esc(STATE.wishlistSearch)}" oninput="STATE.wishlistSearch=this.value;render()"/>
+    ${filterChips}    <div class="section-header">${filtered.length} place${filtered.length!==1?'s':''} to visit</div>
+    ${cards}`;
+}
+function setWishlistFilter(f) { STATE.wishlistFilter = f; render(); }
+// ── PENDING TAB ────────────────────────────────────────────function renderPendingTab() {  if (!STATE.pendingReviews.length) {    return `<div class="empty-state"><div class="emoji">⏳</div><p>No pending reviews.<br/>Mark a wishlist restaurant as visited!</p></div>`;
+  }  return STATE.pendingReviews.map(pr => {    const hasReview = STATE.reviews.some(rv => rv.restaurant_id === pr.restaurant_id);    const visitedDate = pr.visited_at ? new Date(pr.visited_at).toLocaleDateString() : '';
+    return `<div class="card">      <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+        <div>          <div class="card-title">${esc(pr.name)}</div>
+          <div class="card-sub">Visited ${visitedDate}</div>
+          <div>            ${pr.cuisine ? `<span class="tag tag-cuisine">${esc(pr.cuisine)}</span>` : ''}            <span class="tag ${hasReview?'tag-status-done':'tag-status-pending'}">${hasReview?'✅ Reviewed':'⏳ Pending'}</span>
+          </div>
+        </div>        <div style="display:flex;flex-direction:column;gap:5px;align-items:flex-end;">          <button class="btn btn-sm btn-primary" onclick="openReviewModal('${pr.restaurant_id}','${pr.id}')">✍️ Review</button>          <button class="btn btn-sm btn-danger" onclick="deletePending('${pr.id}')">🗑️</button>
+        </div>      </div>
+    </div>`;  }).join('');
+}
+
+// ── REVIEWS TAB ────────────────────────────────────────────function renderReviewsTab() {
+  let reviews = [...STATE.reviews];  if (STATE.reviewSearch) {    const q = STATE.reviewSearch.toLowerCase();
+    reviews = reviews.filter(r =>
+      (r.restaurant_name||'').toLowerCase().includes(q) ||      (r.review_text||'').toLowerCase().includes(q)
+    );
+  }
+
+  if (!reviews.length) {    return `<input class="search-bar" placeholder="🔍 Search reviews…" value="${esc(STATE.reviewSearch)}" oninput="STATE.reviewSearch=this.value;render()"/>    <div class="empty-state"><div class="emoji">⭐</div><p>No reviews yet.<br/>Visit a restaurant and write one!</p></div>`;
+  }
+
+  const byRestaurant = {};
+  reviews.forEach(r => {    const key = r.restaurant_id || r.id;    if (!byRestaurant[key]) byRestaurant[key] = { name: r.restaurant_name, cuisine: r.cuisine, reviews: [] };
+    byRestaurant[key].reviews.push(r);
+  });
+  const cards = Object.entries(byRestaurant).map(([rid, data]) => {    const avgStars = (data.reviews.reduce((a,b) => a+(b.stars||0),0)/data.reviews.length).toFixed(1);    const avgFood = avg(data.reviews.map(r=>r.food_score));
+    const avgService = avg(data.reviews.map(r=>r.service_score));    const avgAmbiance = avg(data.reviews.map(r=>r.ambiance_score));    const avgValue = avg(data.reviews.map(r=>r.value_score));
+    return `<div class="card">      <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+        <div>          <div class="card-title">${esc(data.name||'Unknown')}</div>          ${data.cuisine ? `<span class="tag tag-cuisine">${esc(data.cuisine)}</span>` : ''}          <div class="review-stars">${'★'.repeat(Math.round(parseFloat(avgStars)))}${'☆'.repeat(5-Math.round(parseFloat(avgStars)))}</div>          <div style="font-size:0.75rem;color:#888;">${avgStars}/5 · ${data.reviews.length} review${data.reviews.length!==1?'s':''}</div>        </div>        <button class="btn btn-sm btn-secondary" onclick="viewReviews('${rid}')">View All</button>
+      </div>      ${avgFood!==null?`      <div class="score-row">
+        <div class="score-label">Food</div>        <div class="score-bar-wrap"><div class="score-bar" style="width:${avgFood*10}%"></div></div>        <div class="score-val">${avgFood}</div>
+      </div>`:''}      ${avgService!==null?`
+      <div class="score-row">
+        <div class="score-label">Service</div>        <div class="score-bar-wrap"><div class="score-bar" style="width:${avgService*10}%"></div></div>        <div class="score-val">${avgService}</div>      </div>`:''}      ${avgAmbiance!==null?`      <div class="score-row">
+        <div class="score-label">Ambiance</div>
+        <div class="score-bar-wrap"><div class="score-bar" style="width:${avgAmbiance*10}%"></div></div>        <div class="score-val">${avgAmbiance}</div>
+      </div>`:''}      ${avgValue!==null?`
+      <div class="score-row">
+        <div class="score-label">Value</div>        <div class="score-bar-wrap"><div class="score-bar" style="width:${avgValue*10}%"></div></div>
+        <div class="score-val">${avgValue}</div>
+      </div>`:''}
+    </div>`;  }).join('');
+  return `<input class="search-bar" placeholder="🔍 Search reviews…" value="${esc(STATE.reviewSearch)}" oninput="STATE.reviewSearch=this.value;render()"/>    <div class="section-header">${Object.keys(byRestaurant).length} restaurant${Object.keys(byRestaurant).length!==1?'s':''} reviewed</div>    ${cards}`;
+}
+function avg(arr) {  const valid = arr.filter(v => v != null && v !== '');  if (!valid.length) return null;  return (valid.reduce((a,b)=>a+parseFloat(b),0)/valid.length).toFixed(1);
+}
+
+function viewReviews(restaurantId) {  const data = STATE.reviews.filter(r => (r.restaurant_id||r.id) === restaurantId);
+  if (!data.length) return;  document.getElementById('vr-title').textContent = '⭐ ' + (data[0].restaurant_name||'Reviews');  document.getElementById('vr-content').innerHTML = data.map(r => {    const u = STATE.users.find(u => u.id === r.user_id);    return `<div style="border-bottom:1px solid #F2C4CE;padding:10px 0;">      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <span class="user-chip">${esc(u?u.name:'Anonymous')}</span>        <span class="review-stars">${'★'.repeat(r.stars||0)}${'☆'.repeat(5-(r.stars||0))}</span>
+      </div>      ${r.review_text?`<div style="font-size:0.83rem;color:#555;margin-top:6px;font-style:italic;">"${esc(r.review_text)}"</div>`:''}      <div style="display:flex;gap:10px;margin-top:6px;flex-wrap:wrap;">        ${r.food_score!=null?`<span style="font-size:0.74rem;color:#888;">🍴 Food: <b>${r.food_score}</b></span>`:''}        ${r.service_score!=null?`<span style="font-size:0.74rem;color:#888;">🤝 Service: <b>${r.service_score}</b></span>`:''}        ${r.ambiance_score!=null?`<span style="font-size:0.74rem;color:#888;">✨ Ambiance: <b>${r.ambiance_score}</b></span>`:''}        ${r.value_score!=null?`<span style="font-size:0.74rem;color:#888;">💰 Value: <b>${r.value_score}</b></span>`:''}
+      </div>    </div>`;
+  }).join('');  openModal('modal-view-reviews');
+}
+// ── STATS TAB ─────────────────────────────────────────────
+function renderStatsTab() {  const totalWishlist = STATE.wishlist.length;  const totalReviewed = new Set(STATE.reviews.map(r=>r.restaurant_id)).size;  const totalReviews = STATE.reviews.length;  const avgRating = STATE.reviews.length ? avg(STATE.reviews.map(r=>r.stars)) : '—';
+  const cuisineCounts = {};  STATE.wishlist.forEach(w => { if(w.cuisine) cuisineCounts[w.cuisine] = (cuisineCounts[w.cuisine]||0)+1; });  STATE.reviews.forEach(r => { if(r.cuisine) cuisineCounts[r.cuisine] = (cuisineCounts[r.cuisine]||0)+1; });  const topCuisines = Object.entries(cuisineCounts).sort((a,b)=>b[1]-a[1]).slice(0,5);
+  const topByScore = [...STATE.reviews].sort((a,b)=>(b.stars||0)-(a.stars||0)).slice(0,3);
+  return `
+    <div class="stats-grid">      <div class="stat-card"><div class="stat-num">${totalWishlist}</div><div class="stat-label">🗺️ On Wishlist</div></div>      <div class="stat-card"><div class="stat-num">${STATE.pendingReviews.length}</div><div class="stat-label">⏳ Pending Review</div></div>      <div class="stat-card"><div class="stat-num">${totalReviewed}</div><div class="stat-label">🍽️ Restaurants Tried</div></div>      <div class="stat-card"><div class="stat-num">${avgRating !== '—' ? avgRating + '★' : '—'}</div><div class="stat-label">⭐ Avg Rating</div></div>
+    </div>
+
+    ${topCuisines.length ? `    <div class="section-header">Top Cuisines</div>
+    <div class="card">
+      ${topCuisines.map(([c,n]) => `        <div class="desire-item">          <span style="font-size:0.85rem;font-weight:700;">${esc(c)}</span>          <span class="tag tag-cuisine">${n} places</span>
+        </div>`).join('')}    </div>` : ''}
+
+    ${topByScore.length ? `
+    <div class="section-header">Top Rated Visits</div>    ${topByScore.map(r => `
+      <div class="card">        <div class="card-title">${esc(r.restaurant_name||'Unknown')}</div>        <div class="review-stars">${'★'.repeat(r.stars||0)}${'☆'.repeat(5-(r.stars||0))}</div>        ${r.review_text?`<div style="font-size:0.78rem;color:#888;margin-top:4px;font-style:italic;">"${esc(r.review_text)}"</div>`:''}
+      </div>`).join('')}` : ''}
+    ${STATE.users.length ? `    <div class="section-header">Reviewers</div>
+    <div class="card">
+      ${STATE.users.map(u => {        const count = STATE.reviews.filter(r=>r.user_id===u.id).length;        return `<div class="desire-item">
+          <span class="user-chip">${esc(u.name)}</span>          <span style="font-size:0.8rem;color:#888;">${count} review${count!==1?'s':''}</span>
+        </div>`;
+      }).join('')}    </div>` : ''}`;
+}
+// ── WISHLIST CRUD ──────────────────────────────────────────
+function openAddWishlist() {  STATE.editingWishlistId = null;  document.getElementById('modal-wishlist-title').textContent = '➕ Add to Wishlist';  document.getElementById('w-name').value = '';
+  document.getElementById('w-cuisine').value = '';
+  document.getElementById('w-city').value = '';
+  document.getElementById('w-notes').value = '';  document.getElementById('w-price').value = '';
+  openModal('modal-wishlist');
+}
+function openEditWishlist(id) {
+  const w = STATE.wishlist.find(x => x.id === id);  if (!w) return;  STATE.editingWishlistId = id;
+  document.getElementById('modal-wishlist-title').textContent = '✏️ Edit Restaurant';  document.getElementById('w-name').value = w.name || '';
+  document.getElementById('w-cuisine').value = w.cuisine || '';
+  document.getElementById('w-city').value = w.city || '';
+  document.getElementById('w-notes').value = w.notes || '';  document.getElementById('w-price').value = w.price_range || '';  openModal('modal-wishlist');
+}
+
+async function saveWishlist() {  const name = document.getElementById('w-name').value.trim();  if (!name) { alert('Restaurant name is required.'); return; }  const data = {
+    name,    cuisine: document.getElementById('w-cuisine').value.trim(),
+    city: document.getElementById('w-city').value.trim(),
+    notes: document.getElementById('w-notes').value.trim(),    price_range: document.getElementById('w-price').value,  };
   showLoading(true);
-  try {    await dbInsert('wishlist',{id:uuid(),name,cuisine,notes,added_by:STATE.currentUser});
+  closeModal('modal-wishlist');
+  try {
+    if (STATE.editingWishlistId) {      await dbUpdate('wishlist', `id=eq.${STATE.editingWishlistId}`, data);
+    } else {      await dbInsert('wishlist', { id: uuid(), ...data, created_at: new Date().toISOString() });    }    await loadAllData();    render();  } catch(e) {    showError('Failed to save: ' + e.message);  } finally {    showLoading(false);
+  }}
+async function deleteWishlist(id) {  if (!confirm('Remove this restaurant from wishlist?')) return;
+  showLoading(true);  try {    await dbDelete('desire_scores', `restaurant_id=eq.${id}`);    await dbDelete('wishlist', `id=eq.${id}`);    await loadAllData();
+    render();  } catch(e) {    showError('Failed to delete: ' + e.message);  } finally {    showLoading(false);
+  }}
+async function markVisited(restaurantId) {  if (!confirm('Mark this restaurant as visited? It will move to Pending Reviews.')) return;  const r = STATE.wishlist.find(x => x.id === restaurantId);
+  if (!r) return;
+  showLoading(true);
+  try {    const newPendingId = uuid();
+    await dbInsert('pending_reviews', {      id: newPendingId,
+      restaurant_id: restaurantId,
+      name: r.name,
+      cuisine: r.cuisine,      visited_at: new Date().toISOString()
+    });    await dbDelete('desire_scores', `restaurant_id=eq.${restaurantId}`);    await dbDelete('wishlist', `id=eq.${restaurantId}`);
+    await loadAllData();    STATE.activeTab = 1;    render();
+  } catch(e) {
+    showError('Failed to mark visited: ' + e.message);
+  } finally {
+    showLoading(false);
+  }
+}
+// ── DESIRE SCORES ──────────────────────────────────────────function openDesireModal(restaurantId) {  const w = STATE.wishlist.find(x => x.id === restaurantId);
+  if (!w) return;  STATE.currentRestaurantId = restaurantId;  document.getElementById('desire-rest-name').textContent = w.name;
+  const form = STATE.users.map(u => {    const existing = STATE.desireScores.find(d => d.restaurant_id === restaurantId && d.user_id === u.id);
+    const val = existing ? existing.score : '';    return `<div class="form-group">
+      <label>${esc(u.name)}</label>      <input type="number" min="1" max="10" placeholder="1–10" value="${val}" id="desire-${u.id}"/>
+    </div>`;  }).join('');  document.getElementById('desire-scores-form').innerHTML = form || '<p style="color:#aaa;font-size:0.85rem;">No users found. Add users first.</p>';
+  openModal('modal-desire');
+}
+async function saveDesireScores() {  showLoading(true);
+  closeModal('modal-desire');
+  try {
+    for (const u of STATE.users) {
+      const inp = document.getElementById(`desire-${u.id}`);      if (!inp) continue;
+      const val = parseInt(inp.value);      if (isNaN(val) || val < 1 || val > 10) continue;      const existing = STATE.desireScores.find(d => d.restaurant_id === STATE.currentRestaurantId && d.user_id === u.id);      if (existing) {        await dbUpdate('desire_scores', `id=eq.${existing.id}`, { score: val });
+      } else {        await dbInsert('desire_scores', {
+          id: uuid(),
+          restaurant_id: STATE.currentRestaurantId,          user_id: u.id,          score: val,          created_at: new Date().toISOString()
+        });
+      }
+    }
     await loadAllData();
-    document.getElementById('add-name').value='';    document.getElementById('add-cuisine').value='';
-    document.getElementById('add-notes').value='';
     render();
-  } catch(e) { showError('Failed to add restaurant: '+e.message); }
-  finally { showLoading(false); }}
-async function submitScore(restaurantId,userName) {  if(userName!==STATE.currentUser) return showError("You can only submit your own score.");
-  const input=document.getElementById(`score-${restaurantId}-${userName}`);
-  if(!input) return;  const val=parseInt(input.value);
-  if(isNaN(val)||val<1||val>10) return showError('Score must be between 1 and 10.');  if(STATE.desireScores.find(s=>s.restaurant_id===restaurantId&&s.user_name===userName)) return showError('You already submitted a score.');  showLoading(true);  try { await dbInsert('desire_scores',{id:uuid(),restaurant_id:restaurantId,user_name:userName,score:val}); await loadAllData(); render(); }
-  catch(e) { showError('Failed to submit score: '+e.message); }  finally { showLoading(false); }
-}
-async function markVisited(restaurantId) {  if(!confirm('Mark this restaurant as visited? It will move to Pending Reviews.')) return;  const r=STATE.wishlist.find(x=>x.id===restaurantId);  if(!r) return;
-  showLoading(true);
-  try {    const newPendingId=uuid();    await dbInsert('pending_reviews',{id:newPendingId,restaurant_id:restaurantId,name:r.name,cuisine:r.cuisine,visited_at:new Date().toISOString()});    await dbDelete('desire_scores',`restaurant_id=eq.${restaurantId}`);    await dbDelete('wishlist',`id=eq.${restaurantId}`);
-    await loadAllData();    STATE.activeTab=1;
-    render();  } catch(e) { showError('Failed to mark visited: '+e.message); }
-  finally { showLoading(false); }
-}
-
-async function deleteWishlist(restaurantId) {
-  if(!confirm('Delete this restaurant from wishlist?')) return;
-  showLoading(true);  try { await dbDelete('desire_scores',`restaurant_id=eq.${restaurantId}`); await dbDelete('wishlist',`id=eq.${restaurantId}`); await loadAllData(); render(); }  catch(e) { showError('Failed to delete: '+e.message); }
-  finally { showLoading(false); }
-}
-
-function renderPending() {  const pending=getPendingOnly();  return `<div style="padding-top:16px;"><h3 style="color:var(--burgundy);margin-bottom:10px;font-size:0.95rem;">⏳ Awaiting Reviews (${pending.length})</h3>${pending.length===0?'<div class="empty-state"><span>✅</span>No pending reviews! Mark restaurants as visited from the Wishlist.</div>':''}${pending.map(r=>renderPendingCard(r)).join('')}</div>`;
-}
-function renderPendingCard(r) {  const otherName=STATE.users.find(u=>u.name!==STATE.currentUser).name;  const myReview=STATE.reviews.find(rv=>rv.restaurant_id===r.id&&rv.user_name===STATE.currentUser);  const otherReview=STATE.reviews.find(rv=>rv.restaurant_id===r.id&&rv.user_name===otherName);  const bothReviewed=myReview&&otherReview;  const visited=r.visited_at?new Date(r.visited_at).toLocaleDateString():'';  return `<div class="card"><div class="card-header"><div><div class="card-title">${esc(r.name)}</div><div class="card-sub"><span class="tag">${esc(r.cuisine)}</span>${visited?` <span class="text-muted">Visited ${visited}</span>`:''}</div></div></div>${!bothReviewed?'<div class="banner banner-info mt-8">Reviews hidden until both users submit.</div>':''}${myReview&&!otherReview?`<div class="banner banner-waiting mt-8">⏳ Awaiting review from ${esc(otherName)}</div>`:''}${bothReviewed?'<div class="banner banner-success mt-8">✓ Both reviews submitted!</div>':''}<div class="review-grid">${renderReviewCol(r,STATE.currentUser,myReview,false,bothReviewed)}${renderReviewCol(r,otherName,otherReview,true,bothReviewed)}</div></div>`;
-}
-
-function renderReviewCol(r,userName,existingReview,isLocked,bothReviewed) {  const isMine=userName===STATE.currentUser;  if(existingReview&&bothReviewed) {    return `<div class="review-col"><h4>${esc(userName)} ${isMine?'(you)':''} ✓</h4><div class="review-field"><label>Food</label> ${existingReview.food}/10</div><div class="review-field"><label>Vibes</label> ${existingReview.vibes}/10</div><div class="review-field"><label>Service</label> ${existingReview.service}/10</div><div class="review-field"><label>Would Go Again</label> <span class="${existingReview.would_go_again?'would-yes':'would-no'}">${existingReview.would_go_again?'✓ Yes':'✗ No'}</span></div><div class="review-field"><label>Favourite Dish</label> ${esc(existingReview.favourite_dish||'—')}</div></div>`;
+  } catch(e) {    showError('Failed to save desire scores: ' + e.message);
+  } finally {
+    showLoading(false);
   }
-  if(existingReview&&!bothReviewed) {    return `<div class="review-col"><h4>${esc(userName)} ${isMine?'(you)':''} ✓</h4><div class="text-muted text-sm">Submitted — waiting for other review to reveal.</div></div>`;
-  }
-  if(!isMine||isLocked) {    return `<div class="review-col locked"><h4>${esc(userName)}</h4><div class="text-muted text-sm">Not submitted yet.</div></div>`;
-  }  return `<div class="review-col"><h4>${esc(userName)} (you)</h4><div class="review-field"><label>Food /10</label><input type="number" id="rv-food-${r.id}" min="1" max="10" placeholder="1-10"></div><div class="review-field"><label>Vibes /10</label><input type="number" id="rv-vibes-${r.id}" min="1" max="10" placeholder="1-10"></div><div class="review-field"><label>Service /10</label><input type="number" id="rv-service-${r.id}" min="1" max="10" placeholder="1-10"></div><div class="review-field"><label>Would Go Again?</label><select id="rv-wga-${r.id}"><option value="">Select…</option><option value="yes">Yes</option><option value="no">No</option></select></div><div class="review-field"><label>Favourite Dish</label><input type="text" id="rv-dish-${r.id}" placeholder="e.g. Truffle pasta"></div><button class="btn btn-gold btn-sm" style="margin-top:6px;" onclick="submitReview('${r.id}')">Submit Review</button></div>`;
+}
+// ── REVIEW CRUD ────────────────────────────────────────────function openReviewModal(restaurantId, pendingId) {  STATE.currentRestaurantId = restaurantId;
+  STATE.currentPendingId = pendingId;  STATE.currentStarRating = 0;
+  const pr = STATE.pendingReviews.find(p => p.id === pendingId);  document.getElementById('modal-review-title').textContent = '✍️ Write a Review';  document.getElementById('review-rest-name-label').textContent = pr ? pr.name : '';
+  const userSel = document.getElementById('r-user');  userSel.innerHTML = STATE.users.map(u => `<option value="${u.id}">${esc(u.name)}</option>`).join('');
+  document.getElementById('r-text').value = '';
+  document.getElementById('r-food').value = '';
+  document.getElementById('r-service').value = '';  document.getElementById('r-ambiance').value = '';  document.getElementById('r-value').value = '';
+  setStar(0);
+  openModal('modal-review');
 }
 
-async function submitReview(restaurantId) {  const food=parseInt(document.getElementById(`rv-food-${restaurantId}`).value);
-  const vibes=parseInt(document.getElementById(`rv-vibes-${restaurantId}`).value);  const service=parseInt(document.getElementById(`rv-service-${restaurantId}`).value);
-  const wga=document.getElementById(`rv-wga-${restaurantId}`).value;
-  const dish=(document.getElementById(`rv-dish-${restaurantId}`).value||'').trim();  if([food,vibes,service].some(v=>isNaN(v)||v<1||v>10)) return showError('All scores must be between 1 and 10.');
-  if(!wga) return showError('Please select Would Go Again.');
-  showLoading(true);  try {    await dbInsert('reviews',{id:uuid(),restaurant_id:restaurantId,user_name:STATE.currentUser,food,vibes,service,would_go_again:wga==='yes',favourite_dish:dish});
-    await loadAllData();    if(getCompletedRestaurants().some(r=>r.id===restaurantId)) STATE.activeTab=2;    render();  } catch(e) { showError('Failed to submit review: '+e.message); }
-  finally { showLoading(false); }
-}
-function renderCompleted() {  const completed=getCompletedRestaurants();  if(STATE.users.length<2) return '<div class="empty-state"><span>👤</span>Need 2 users.</div>';
-  const [u1,u2]=STATE.users;  const ranked=completed.map(r=>{    const rv1=STATE.reviews.find(rv=>rv.restaurant_id===r.id&&rv.user_name===u1.name);    const rv2=STATE.reviews.find(rv=>rv.restaurant_id===r.id&&rv.user_name===u2.name);    const avg1=rv1?((rv1.food+rv1.vibes+rv1.service)/3):0;    const avg2=rv2?((rv2.food+rv2.vibes+rv2.service)/3):0;    return {r,rv1,rv2,avg1,avg2,combined:parseFloat((avg1+avg2).toFixed(1))};  }).sort((a,b)=>b.combined-a.combined);  const totalVisited=ranked.length;  const avgScore=totalVisited>0?(ranked.reduce((s,x)=>s+x.combined,0)/totalVisited).toFixed(1):'—';  const topRest=ranked.length>0?ranked[0].r.name:'—';  return `<div style="padding-top:16px;"><div class="stats-row"><div class="stat-box"><div class="stat-num">${totalVisited}</div><div class="stat-label">Total Visited</div></div><div class="stat-box"><div class="stat-num">${avgScore}</div><div class="stat-label">Avg Combined Score</div></div><div class="stat-box"><div class="stat-num" style="font-size:1rem;">${esc(topRest)}</div><div class="stat-label">Top Scorer</div></div></div><h3 style="color:var(--burgundy);margin-bottom:10px;font-size:0.95rem;">🏆 Rankings (${totalVisited})</h3>${ranked.length===0?'<div class="empty-state"><span>🍽️</span>No completed reviews yet.</div>':''}${ranked.map(({r,rv1,rv2,combined},idx)=>renderCompletedCard(r,rv1,rv2,combined,idx)).join('')}</div>`;
-}
+function setStar(n) {
+  STATE.currentStarRating = n;  document.querySelectorAll('#star-row span').forEach((s, i) => {    s.style.color = i < n ? '#F4A825' : '#ddd';
+  });}
 
-function renderCompletedCard(r,rv1,rv2,combined,idx) {  const medals=['🥇','🥈','🥉'];  const medal=idx<3?medals[idx]:`#${idx+1}`;
-  const [u1,u2]=STATE.users;  function scoreBlock(label,rv) {    if(!rv) return `<div class="score-box"><h4>${esc(label)}</h4><div class="text-muted text-sm">No review</div></div>`;    const avg=((rv.food+rv.vibes+rv.service)/3).toFixed(1);    return `<div class="score-box"><h4>${esc(label)}</h4><div style="font-size:0.8rem;line-height:1.8;"><div>🍕 Food: <strong>${rv.food}/10</strong></div><div>✨ Vibes: <strong>${rv.vibes}/10</strong></div><div>🛎 Service: <strong>${rv.service}/10</strong></div><div>Avg: <strong>${avg}</strong></div><div>Return: <span class="${rv.would_go_again?'would-yes':'would-no'}">${rv.would_go_again?'✓ Yes':'✗ No'}</span></div><div style="margin-top:4px;">🍽 <em>${esc(rv.favourite_dish||'—')}</em></div></div></div>`;
-  }  return `<div class="card rank-card"><div class="rank-num">${medal}</div><div class="card-header"><div><div class="card-title">${esc(r.name)}</div><div class="card-sub"><span class="tag">${esc(r.cuisine)}</span></div></div><div class="combined-score">${combined}/20</div></div><div class="scores-section mt-8">${scoreBlock(u1.name,rv1)}${scoreBlock(u2.name,rv2)}</div></div>`;
-}
-function renderWouldReturn() {  const completed=getCompletedRestaurants();  if(STATE.users.length<2) return '<div class="empty-state"><span>👤</span>Need 2 users.</div>';  const [u1,u2]=STATE.users;  const returnList=completed.map(r=>{    const rv1=STATE.reviews.find(rv=>rv.restaurant_id===r.id&&rv.user_name===u1.name);    const rv2=STATE.reviews.find(rv=>rv.restaurant_id===r.id&&rv.user_name===u2.name);
-    return {r,rv1,rv2};  }).filter(({rv1,rv2})=>rv1&&rv2&&rv1.would_go_again&&rv2.would_go_again).map(({r,rv1,rv2})=>{    const combined=parseFloat((((rv1.food+rv1.vibes+rv1.service)/3)+((rv2.food+rv2.vibes+rv2.service)/3)).toFixed(1));    return {r,rv1,rv2,combined};
-  }).sort((a,b)=>b.combined-a.combined);  const medals=['🥇','🥈','🥉'];  return `<div style="padding-top:16px;"><h3 style="color:var(--burgundy);margin-bottom:10px;font-size:0.95rem;">🔁 We'd Go Back Here! (${returnList.length})</h3>${returnList.length===0?'<div class="empty-state"><span>💭</span>No restaurants where both of you said "Would Go Again". Yet!</div>':''}${returnList.map(({r,rv1,rv2,combined},idx)=>`<div class="card"><div class="card-header"><div><div style="font-size:1.1rem;">${idx<3?medals[idx]:`#${idx+1}`} <strong>${esc(r.name)}</strong></div><div class="card-sub"><span class="tag">${esc(r.cuisine)}</span></div></div><div class="combined-score">${combined}/20</div></div><div style="margin-top:10px;font-size:0.82rem;display:grid;grid-template-columns:1fr 1fr;gap:8px;"><div><div class="text-muted">${esc(u1.name)}'s fave dish:</div><div style="font-style:italic;">${esc(rv1.favourite_dish||'—')}</div></div><div><div class="text-muted">${esc(u2.name)}'s fave dish:</div><div style="font-style:italic;">${esc(rv2.favourite_dish||'—')}</div></div></div></div>`).join('')}</div>`;
-}
-function esc(str) { if(!str) return ''; return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
-async function init() {
-  document.getElementById('app').style.display='none';
+async function saveReview() {
+  const userId = document.getElementById('r-user').value;  if (!userId) { alert('Please select a reviewer.'); return; }
+  const pr = STATE.pendingReviews.find(p => p.id === STATE.currentPendingId);
+  const data = {
+    id: uuid(),    restaurant_id: STATE.currentRestaurantId,
+    restaurant_name: pr ? pr.name : '',
+    cuisine: pr ? pr.cuisine : '',
+    user_id: userId,    stars: STATE.currentStarRating || null,    review_text: document.getElementById('r-text').value.trim(),    food_score: parseInt(document.getElementById('r-food').value) || null,    service_score: parseInt(document.getElementById('r-service').value) || null,
+    ambiance_score: parseInt(document.getElementById('r-ambiance').value) || null,    value_score: parseInt(document.getElementById('r-value').value) || null,    created_at: new Date().toISOString()
+  };
+
   showLoading(true);
-  try {    await loadAllData();    const savedUser=getSession('currentUser');    if(savedUser&&STATE.users.some(u=>u.name===savedUser)) STATE.currentUser=savedUser;
-    showLoading(false);    setConnectionStatus(true);    document.getElementById('app').style.display='block';
+  closeModal('modal-review');
+  try {    await dbInsert('reviews', data);
+    await loadAllData();
     render();
-  } catch(e) {    showFatalError(e.message);  }
+  } catch(e) {
+    showError('Failed to save review: ' + e.message);
+  } finally {
+    showLoading(false);
+  }
 }
+async function deletePending(pendingId) {
+  if (!confirm('Remove this pending review?')) return;
+  showLoading(true);
+  try {    await dbDelete('pending_reviews', `id=eq.${pendingId}`);
+    await loadAllData();
+    render();
+  } catch(e) {    showError('Failed to delete: ' + e.message);
+  } finally {
+    showLoading(false);
+  }
+}
+// ── MODAL HELPERS ──────────────────────────────────────────function openModal(id) { document.getElementById(id).classList.add('open'); }function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+  overlay.addEventListener('click', e => {    if (e.target === overlay) overlay.classList.remove('open');
+  });
+});
 
-setInterval(async () => {  if(!STATE.currentUser) return;  try { await loadAllData(); setConnectionStatus(true); const tc=document.getElementById('tab-content'); if(tc) tc.innerHTML=renderActiveTab(); }  catch(e) { setConnectionStatus(false); }
-}, 30000);
-
+function esc(str) {
+  if (!str) return '';  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+// ── INIT ───────────────────────────────────────────────────async function init() {
+  showLoading(true);
+  try {
+    await loadAllData();
+    render();
+  } catch(e) {
+    showError('Failed to load data: ' + e.message);    document.getElementById('loading').style.display = 'none';    document.getElementById('app').style.display = 'block';
+  } finally {    showLoading(false);
+  }
+}
 init();
-</script>
-</body></html>
+// Auto-refresh every 60 secondssetInterval(async () => {  try {    await loadAllData();
+    render();  } catch(e) {}}, 60000);
+</script></body>
