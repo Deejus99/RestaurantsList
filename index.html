@@ -294,7 +294,19 @@ function renderActiveTab() {
 }
 
 function renderWishlist() {
-  const sorted=[...STATE.wishlist].sort((a,b)=>getCombinedScore(b.id)-getCombinedScore(a.id));
+  const pendingIds = new Set(
+  STATE.pendingReviews
+    .flatMap(pr => [pr.id, pr.restaurant_id])
+    .filter(Boolean)
+);
+
+const visibleWishlist = STATE.wishlist.filter(r => !pendingIds.has(r.id));
+
+const sorted = [...visibleWishlist].sort((a, b) => {
+  const scoreA = getCombinedScore(a.id);
+  const scoreB = getCombinedScore(b.id);
+  return scoreB - scoreA;
+});
   return '<div style="padding-top:16px;">'+renderAddRestaurantForm()+'<h3 style="color:var(--burgundy);margin-bottom:10px;font-size:0.95rem;">🏆 Leaderboard ('+sorted.length+')</h3>'+(sorted.length===0?'<div class="empty-state"><span>🍽️</span>No restaurants yet. Add one above!</div>':'')+sorted.map((r,i)=>renderWishlistCard(r,i)).join('')+'</div>';
 }
 function renderAddRestaurantForm() {
