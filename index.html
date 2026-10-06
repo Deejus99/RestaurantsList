@@ -359,21 +359,45 @@ async function submitScore(restaurantId, userName) {
 }
 
 async function markVisited(restaurantId) {
-  if(!confirm('Mark this restaurant as visited? It will move to Pending Reviews.')) return;
-  const r=STATE.wishlist.find(x=>x.id===restaurantId);
-  if(!r) return;
+  if (!confirm('Mark this restaurant as visited? It will move to Pending Reviews.')) return;
+
+  const r = STATE.wishlist.find(x => x.id === restaurantId);
+  if (!r) return;
+
   showLoading(true);
+
   try {
-    const newId=uuid();
-    await dbInsert('pending_reviews',{id:newId,restaurant_id:restaurantId,name:r.name,cuisine:r.cuisine,visited_at:new Date().toISOString()});
-    await dbDelete('desire_scores','restaurant_id=eq.'+restaurantId);
-    await dbDelete('wishlist','id=eq.'+restaurantId);
+    const alreadyPending = STATE.pendingReviews.some(
+      pr => pr.id === restaurantId || pr.restaurant_id === restaurantId
+    );
+
+    if (!alreadyPending) {
+      await dbInsert('pending_reviews', {
+        id: restaurantId,
+        restaurant_id: restaurantId,
+        name: r.name,
+        cuisine: r.cuisine,
+        visited_at: new Date().toISOString()
+      });
+    }
+
+    await dbDelete('desire_scores', `restaurant_id=eq.${restaurantId}`);
+
+    // Do NOT delete from wishlist.
+    // pending_reviews.restaurant_id references wishlist.id with ON DELETE CASCADE,
+    // so deleting wishlist would also delete the pending review.
+
+    await new Promise(resolve => setTimeout(resolve, 500));
     await loadAllData();
-    STATE.activeTab=1;
+
+    STATE.activeTab = 1;
     render();
-    const ou=getOtherUser(); if(ou) createNotification(ou.name,'✅ '+STATE.currentUser+' marked '+r.name+' as visited!','visited');
-  } catch(e) { showError('Failed to mark visited: '+e.message); }
-  finally { showLoading(false); }
+
+  } catch(e) {
+    showError('Failed to mark visited: ' + e.message);
+  } finally {
+    showLoading(false);
+  }
 }
 
 async function deleteWishlist(restaurantId) {
