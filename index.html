@@ -144,7 +144,34 @@ const STATE = {
   currentUser: null, users: [], wishlist: [], desireScores: [],
   pendingReviews: [], reviews: [], activeTab: 0, loginSelectedUser: null
 };
+let USER_IS_EDITING = false;
+let LAST_EDIT_AT = 0;
 
+function markUserEditing() {
+  USER_IS_EDITING = true;
+  LAST_EDIT_AT = Date.now();
+}
+
+function userIsActivelyEditing() {
+  const active = document.activeElement;
+  const isFormField = active && ['INPUT', 'TEXTAREA', 'SELECT'].includes(active.tagName);
+
+  return isFormField || (Date.now() - LAST_EDIT_AT < 10000);
+}
+
+document.addEventListener('input', markUserEditing, true);
+document.addEventListener('change', markUserEditing, true);
+
+document.addEventListener('focusin', function(e) {
+  if (e.target && ['INPUT', 'TEXTAREA', 'SELECT'].includes(e.target.tagName)) {
+    markUserEditing();
+  }
+}, true);
+
+document.addEventListener('focusout', function() {
+  LAST_EDIT_AT = Date.now();
+}, true);
+ 
 function getSession(k) { try { return sessionStorage.getItem(k); } catch(e) { return null; } }
 function setSession(k,v) { try { sessionStorage.setItem(k,v); } catch(e) {} }
 function clearSession(k) { try { sessionStorage.removeItem(k); } catch(e) {} }
@@ -295,18 +322,18 @@ function renderActiveTab() {
 
 function renderWishlist() {
   const pendingIds = new Set(
-  STATE.pendingReviews
-    .flatMap(pr => [pr.id, pr.restaurant_id])
-    .filter(Boolean)
-);
+    STATE.pendingReviews
+      .flatMap(pr => [pr.id, pr.restaurant_id])
+      .filter(Boolean)
+  );
 
-const visibleWishlist = STATE.wishlist.filter(r => !pendingIds.has(r.id));
+  const visibleWishlist = STATE.wishlist.filter(r => !pendingIds.has(r.id));
 
-const sorted = [...visibleWishlist].sort((a, b) => {
-  const scoreA = getCombinedScore(a.id);
-  const scoreB = getCombinedScore(b.id);
-  return scoreB - scoreA;
-});
+  const sorted = [...visibleWishlist].sort((a, b) => {
+    const scoreA = getCombinedScore(a.id);
+    const scoreB = getCombinedScore(b.id);
+    return scoreB - scoreA;
+  });
   return '<div style="padding-top:16px;">'+renderAddRestaurantForm()+'<h3 style="color:var(--burgundy);margin-bottom:10px;font-size:0.95rem;">🏆 Leaderboard ('+sorted.length+')</h3>'+(sorted.length===0?'<div class="empty-state"><span>🍽️</span>No restaurants yet. Add one above!</div>':'')+sorted.map((r,i)=>renderWishlistCard(r,i)).join('')+'</div>';
 }
 function renderAddRestaurantForm() {
@@ -341,12 +368,16 @@ async function addRestaurant() {
   if(STATE.pendingReviews.some(r=>r.name.toLowerCase()===nl)) return showError('"'+name+'" is already in Pending Reviews.');
   showLoading(true);
   try {
-    await dbInsert('wishlist',{id:uuid(),name,cuisine,notes,added_by:STATE.currentUser});
-    await loadAllData();
-    document.getElementById('add-name').value='';
-    document.getElementById('add-cuisine').value='';
-    document.getElementById('add-notes').value='';
-    render();
+    await dbInsert('wishlist', { id: uuid(), name, cuisine, notes, added_by: STATE.currentUser });
+await loadAllData();
+
+USER_IS_EDITING = false;
+LAST_EDIT_AT = 0;
+
+document.getElementById('add-name').value = '';
+document.getElementById('add-cuisine').value = '';
+document.getElementById('add-notes').value = '';
+render();
     const ou=getOtherUser(); if(ou) createNotification(ou.name,'🍽️ '+STATE.currentUser+' added '+name+' to the wishlist!','new_restaurant');
   } catch(e) { showError('Failed to add: '+e.message); }
   finally { showLoading(false); }
@@ -361,9 +392,13 @@ async function submitScore(restaurantId, userName) {
   if(STATE.desireScores.find(s=>s.restaurant_id===restaurantId&&s.user_name===userName)) return showError('You already submitted a score.');
   showLoading(true);
   try {
-    await dbInsert('desire_scores',{id:uuid(),restaurant_id:restaurantId,user_name:userName,score:val});
-    await loadAllData();
-    render();
+    await dbInsert('desire_scores', { id: uuid(), restaurant_id: restaurantId, user_name: userName, score: val });
+await loadAllData();
+
+USER_IS_EDITING = false;
+LAST_EDIT_AT = 0;
+
+render();
     const rname=(STATE.wishlist.find(x=>x.id===restaurantId)||{name:restaurantId}).name;
     const ou=getOtherUser(); if(ou) createNotification(ou.name,'⭐ '+STATE.currentUser+' scored '+rname+' '+val+'/10','score');
   } catch(e) { showError('Failed to submit score: '+e.message); }
@@ -396,11 +431,13 @@ async function markVisited(restaurantId) {
     await dbDelete('desire_scores', `restaurant_id=eq.${restaurantId}`);
 
     // Do NOT delete from wishlist.
-    // pending_reviews.restaurant_id references wishlist.id with ON DELETE CASCADE,
-    // so deleting wishlist would also delete the pending review.
+    // pending_reviews.restaurant_id references wishlist.id with ON DELETE CASCADE.
 
     await new Promise(resolve => setTimeout(resolve, 500));
     await loadAllData();
+
+    USER_IS_EDITING = false;
+    LAST_EDIT_AT = 0;
 
     STATE.activeTab = 1;
     render();
@@ -459,7 +496,12 @@ async function submitReview(restaurantId) {
   try {
     await dbInsert('reviews',{id:uuid(),restaurant_id:restaurantId,user_name:STATE.currentUser,food,vibes,service,would_go_again:wga==='yes',favourite_dish:dish});
     await loadAllData();
-    const completed=getCompletedRestaurants();
+
+USER_IS_EDITING = false;
+LAST_EDIT_AT = 0;
+
+// Check if both reviewed — if so, switch to completed tab
+const completed = getCompletedRestaurants();
     if(completed.some(r=>r.id===restaurantId)) STATE.activeTab=2;
     render();
     const ou=getOtherUser(); if(ou) createNotification(ou.name,'📝 '+STATE.currentUser+' submitted their review!','review');
