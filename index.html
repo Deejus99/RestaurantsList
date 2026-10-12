@@ -607,20 +607,18 @@ async function init() {
   }
 }
 
-setInterval(async()=>{
-  if(!STATE.currentUser) return;
-  try { await loadAllData(); setConnectionStatus(true); const tc=document.getElementById('tab-content'); if(tc) tc.innerHTML=renderActiveTab(); renderNotifBell(); }
-  catch(e) { setConnectionStatus(false); }
-},30000);
 setInterval(async () => {
   if (!STATE.currentUser) return;
 
   try {
-    await withTimeout(loadAllData(), 10000);
+    await loadAllData();
     setConnectionStatus(true);
 
-    // Do not redraw the tab while someone is typing into a form field.
-    // This prevents restaurant entries, scores, and reviews from being wiped.
+    // Always refresh the notification bell.
+    renderNotifBell();
+
+    // Do not redraw the current tab while someone is typing into a form field.
+    // This prevents restaurant entries, wishlist scores, and reviews from being wiped.
     if (userIsActivelyEditing()) return;
 
     const tc = document.getElementById('tab-content');
