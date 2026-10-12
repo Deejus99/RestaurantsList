@@ -144,6 +144,9 @@ const STATE = {
   currentUser: null, users: [], wishlist: [], desireScores: [],
   pendingReviews: [], reviews: [], activeTab: 0, loginSelectedUser: null
 };
+
+const PENDING_COLLAPSED = {};
+ 
 let USER_IS_EDITING = false;
 let LAST_EDIT_AT = 0;
 
@@ -497,6 +500,13 @@ function renderPending() {
   return '<div style="padding-top:16px;"><h3 style="color:var(--burgundy);margin-bottom:10px;font-size:0.95rem;">⏳ Awaiting Reviews ('+pending.length+')</h3>'+(pending.length===0?'<div class="empty-state"><span>✅</span>No pending reviews! Mark restaurants as visited from the Wishlist.</div>':'')+pending.map(r=>renderPendingCard(r)).join('')+'</div>';
 }
 
+function togglePendingCollapse(pendingId) {
+  PENDING_COLLAPSED[pendingId] = !PENDING_COLLAPSED[pendingId];
+
+  const tc = document.getElementById('tab-content');
+  if (tc) tc.innerHTML = renderActiveTab();
+}
+ 
 function renderPendingCard(r) {
   const [u1,u2]=STATE.users;
   const myReview=STATE.reviews.find(rv=>rv.restaurant_id===r.id&&rv.user_name===STATE.currentUser);
@@ -504,8 +514,43 @@ function renderPendingCard(r) {
   const otherReview=STATE.reviews.find(rv=>rv.restaurant_id===r.id&&rv.user_name===otherName);
   const bothReviewed=myReview&&otherReview;
   const visited=r.visited_at?new Date(r.visited_at).toLocaleDateString():'';
+  const collapsed=!!PENDING_COLLAPSED[r.id];
 
-  return '<div class="card"><div class="card-header"><div><div class="card-title">'+esc(r.name)+'</div><div class="card-sub"><span class="tag">'+esc(r.cuisine)+'</span>'+(visited?' <span class="text-muted">Visited '+visited+'</span>':'')+'</div></div></div>'+(!bothReviewed?'<div class="banner banner-info mt-8">Reviews hidden until both users submit.</div>':'')+(myReview&&!otherReview?'<div class="banner banner-waiting mt-8">⏳ Awaiting review from '+esc(otherName)+'</div>':'')+(bothReviewed?'<div class="banner banner-success mt-8">✓ Both reviews submitted!</div>':'')+'<div class="review-grid">'+renderReviewCol(r,STATE.currentUser,myReview,false,bothReviewed)+renderReviewCol(r,otherName,otherReview,true,bothReviewed)+'</div><hr class="divider"><div class="flex-gap"><button class="btn btn-sm btn-outline" onclick="movePendingBackToWishlist(\''+r.id+'\')">↩ Move Back to Wishlist</button></div></div>';
+  const header =
+    '<div class="card-header">' +
+      '<div>' +
+        '<div class="card-title">'+esc(r.name)+'</div>' +
+        '<div class="card-sub">' +
+          '<span class="tag">'+esc(r.cuisine)+'</span>' +
+          (visited?' <span class="text-muted">Visited '+visited+'</span>':'') +
+        '</div>' +
+      '</div>' +
+      '<button class="btn btn-sm btn-outline" onclick="togglePendingCollapse(\''+r.id+'\')">' +
+        (collapsed ? 'Expand' : 'Collapse') +
+      '</button>' +
+    '</div>';
+
+  if (collapsed) {
+    return '<div class="card">' +
+      header +
+      '<div class="banner banner-waiting mt-8">Awaiting scores...make it count</div>' +
+    '</div>';
+  }
+
+  return '<div class="card">' +
+    header +
+    (!bothReviewed?'<div class="banner banner-info mt-8">Reviews hidden until both users submit.</div>':'') +
+    (myReview&&!otherReview?'<div class="banner banner-waiting mt-8">⏳ Awaiting review from '+esc(otherName)+'</div>':'') +
+    (bothReviewed?'<div class="banner banner-success mt-8">✓ Both reviews submitted!</div>':'') +
+    '<div class="review-grid">' +
+      renderReviewCol(r,STATE.currentUser,myReview,false,bothReviewed) +
+      renderReviewCol(r,otherName,otherReview,true,bothReviewed) +
+    '</div>' +
+    '<hr class="divider">' +
+    '<div class="flex-gap">' +
+      '<button class="btn btn-sm btn-outline" onclick="movePendingBackToWishlist(\''+r.id+'\')">↩ Move Back to Wishlist</button>' +
+    '</div>' +
+  '</div>';
 }
 
 async function movePendingBackToWishlist(pendingId) {
