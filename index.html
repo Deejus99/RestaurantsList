@@ -383,17 +383,48 @@ render();
   finally { showLoading(false); }
 }
 
+function wouldCreateThreeSameScoresInARow(userName, nextScore) {
+  const userScores = STATE.desireScores
+    .filter(s => s.user_name === userName)
+    .sort((a, b) => {
+      const aTime = a.created_at ? new Date(a.created_at).getTime() : 0;
+      const bTime = b.created_at ? new Date(b.created_at).getTime() : 0;
+      return aTime - bTime;
+    });
+
+  const lastTwo = userScores.slice(-2);
+
+  if (lastTwo.length < 2) return false;
+
+  return lastTwo[0].score === nextScore && lastTwo[1].score === nextScore;
+}
+ 
 async function submitScore(restaurantId, userName) {
   if(userName!==STATE.currentUser) return showError('You can only submit your own score.');
   const input=document.getElementById('score-'+restaurantId+'-'+userName);
   if(!input) return;
   const val=parseInt(input.value);
   if(isNaN(val)||val<1||val>10) return showError('Score must be between 1 and 10.');
-  if(STATE.desireScores.find(s=>s.restaurant_id===restaurantId&&s.user_name===userName)) return showError('You already submitted a score.');
-  showLoading(true);
-  try {
-    await dbInsert('desire_scores', { id: uuid(), restaurant_id: restaurantId, user_name: userName, score: val });
-await loadAllData();
+  if (STATE.desireScores.find(s => s.restaurant_id === restaurantId && s.user_name === userName)) {
+  return showError('You already submitted a score.');
+}
+
+if (wouldCreateThreeSameScoresInARow(userName, val)) {
+  alert('Naughty naughty, have some variety');
+  return;
+}
+
+showLoading(true);
+
+try {
+  await dbInsert('desire_scores', {
+    id: uuid(),
+    restaurant_id: restaurantId,
+    user_name: userName,
+    score: val
+  });
+
+  await loadAllData();
 
 USER_IS_EDITING = false;
 LAST_EDIT_AT = 0;
