@@ -504,15 +504,61 @@ function renderPendingCard(r) {
   const otherReview=STATE.reviews.find(rv=>rv.restaurant_id===r.id&&rv.user_name===otherName);
   const bothReviewed=myReview&&otherReview;
   const visited=r.visited_at?new Date(r.visited_at).toLocaleDateString():'';
-  return '<div class="card"><div class="card-header"><div><div class="card-title">'+esc(r.name)+'</div><div class="card-sub"><span class="tag">'+esc(r.cuisine)+'</span>'+(visited?' <span class="text-muted">Visited '+visited+'</span>':'')+'</div></div></div>'+(!bothReviewed?'<div class="banner banner-info mt-8">Reviews hidden until both users submit.</div>':'')+(myReview&&!otherReview?'<div class="banner banner-waiting mt-8">⏳ Awaiting review from '+esc(otherName)+'</div>':'')+(bothReviewed?'<div class="banner banner-success mt-8">✓ Both reviews submitted!</div>':'')+'<div class="review-grid">'+renderReviewCol(r,STATE.currentUser,myReview,false,bothReviewed)+renderReviewCol(r,otherName,otherReview,true,bothReviewed)+'</div></div>';
+
+  return '<div class="card"><div class="card-header"><div><div class="card-title">'+esc(r.name)+'</div><div class="card-sub"><span class="tag">'+esc(r.cuisine)+'</span>'+(visited?' <span class="text-muted">Visited '+visited+'</span>':'')+'</div></div></div>'+(!bothReviewed?'<div class="banner banner-info mt-8">Reviews hidden until both users submit.</div>':'')+(myReview&&!otherReview?'<div class="banner banner-waiting mt-8">⏳ Awaiting review from '+esc(otherName)+'</div>':'')+(bothReviewed?'<div class="banner banner-success mt-8">✓ Both reviews submitted!</div>':'')+'<div class="review-grid">'+renderReviewCol(r,STATE.currentUser,myReview,false,bothReviewed)+renderReviewCol(r,otherName,otherReview,true,bothReviewed)+'</div><hr class="divider"><div class="flex-gap"><button class="btn btn-sm btn-outline" onclick="movePendingBackToWishlist(\''+r.id+'\')">↩ Move Back to Wishlist</button></div></div>';
 }
 
+async function movePendingBackToWishlist(pendingId) {
+  if (!confirm('Move this restaurant back to Wishlist? Any pending review already submitted for it will be removed.')) return;
+
+  const pending = STATE.pendingReviews.find(r => r.id === pendingId);
+  if (!pending) return showError('Pending restaurant not found.');
+
+  showLoading(true);
+
+  try {
+    // Remove any partial reviews submitted while this restaurant was pending
+    await dbDelete('reviews', 'restaurant_id=eq.' + pending.id);
+
+    // Remove only the pending row.
+    // Do NOT delete from wishlist, because the wishlist row is the base restaurant record.
+    await dbDelete('pending_reviews', 'id=eq.' + pending.id);
+
+    await loadAllData();
+
+    USER_IS_EDITING = false;
+    LAST_EDIT_AT = 0;
+
+    STATE.activeTab = 0;
+    render();
+
+  } catch(e) {
+    showError('Failed to move back to Wishlist: ' + e.message);
+  } finally {
+    showLoading(false);
+  }
+}
+ 
 function renderReviewCol(r,userName,existingReview,isLocked,bothReviewed) {
   const isMine=userName===STATE.currentUser;
   const showData=bothReviewed&&existingReview;
-  if(existingReview&&showData) return '<div class="review-col"><h4>'+esc(userName)+(isMine?' (you)':'')+' ✓</h4><div class="review-field"><label>Food</label> '+existingReview.food+'/10</div><div class="review-field"><label>Vibes</label> '+existingReview.vibes+'/10</div><div class="review-field"><label>Service</label> '+existingReview.service+'/10</div><div class="review-field"><label>Would Go Again</label> <span class="'+(existingReview.would_go_again?'would-yes':'would-no')+'">'+(existingReview.would_go_again?'✓ Yes':'✗ No')+'</span></div><div class="review-field"><label>Favourite Dish</label> '+esc(existingReview.favourite_dish||'—')+'</div></div>';
-  if(existingReview&&!bothReviewed) return '<div class="review-col"><h4>'+esc(userName)+(isMine?' (you)':'')+' ✓</h4><div class="text-muted text-sm">Submitted — waiting for other review to reveal.</div></div>';
-  if(!isMine||isLocked) return '<div class="review-col locked"><h4>'+esc(userName)+'</h4><div class="text-muted text-sm">Not submitted yet.</div></div>';
+
+  if(existingReview&&showData) {
+    return '<div class="review-col"><h4>'+esc(userName)+(isMine?' (you)':'')+' ✓</h4><div class="review-field"><label>Food</label> '+existingReview.food+'/10</div><div class="review-field"><label>Vibes</label> '+existingReview.vibes+'/10</div><div class="review-field"><label>Service</label> '+existingReview.service+'/10</div><div class="review-field"><label>Would Go Again</label> <span class="'+(existingReview.would_go_again?'would-yes':'would-no')+'">'+(existingReview.would_go_again?'✓ Yes':'✗ No')+'</span></div><div class="review-field"><label>Favourite Dish</label> '+esc(existingReview.favourite_dish||'—')+'</div></div>';
+  }
+
+  if(existingReview&&!bothReviewed&&isMine) {
+    return '<div class="review-col"><h4>'+esc(userName)+' (you) ✓</h4><div class="review-field"><label>Food /10</label><input type="number" id="rv-food-'+r.id+'" min="1" max="10" placeholder="1-10" value="'+existingReview.food+'"></div><div class="review-field"><label>Vibes /10</label><input type="number" id="rv-vibes-'+r.id+'" min="1" max="10" placeholder="1-10" value="'+existingReview.vibes+'"></div><div class="review-field"><label>Service /10</label><input type="number" id="rv-service-'+r.id+'" min="1" max="10" placeholder="1-10" value="'+existingReview.service+'"></div><div class="review-field"><label>Would Go Again?</label><select id="rv-wga-'+r.id+'"><option value="">Select…</option><option value="yes" '+(existingReview.would_go_again?'selected':'')+'>Yes</option><option value="no" '+(!existingReview.would_go_again?'selected':'')+'>No</option></select></div><div class="review-field"><label>Favourite Dish</label><input type="text" id="rv-dish-'+r.id+'" placeholder="e.g. Truffle pasta" value="'+esc(existingReview.favourite_dish||'')+'"></div><button class="btn btn-gold btn-sm" style="margin-top:6px;" onclick="updateReview(\''+r.id+'\',\''+existingReview.id+'\')">Save Changes</button><div class="text-muted text-sm mt-8">Your review is submitted, but you can edit it until the other user submits theirs.</div></div>';
+  }
+
+  if(existingReview&&!bothReviewed) {
+    return '<div class="review-col"><h4>'+esc(userName)+(isMine?' (you)':'')+' ✓</h4><div class="text-muted text-sm">Submitted — waiting for other review to reveal.</div></div>';
+  }
+
+  if(!isMine||isLocked) {
+    return '<div class="review-col locked"><h4>'+esc(userName)+'</h4><div class="text-muted text-sm">Not submitted yet.</div></div>';
+  }
+
   return '<div class="review-col"><h4>'+esc(userName)+' (you)</h4><div class="review-field"><label>Food /10</label><input type="number" id="rv-food-'+r.id+'" min="1" max="10" placeholder="1-10"></div><div class="review-field"><label>Vibes /10</label><input type="number" id="rv-vibes-'+r.id+'" min="1" max="10" placeholder="1-10"></div><div class="review-field"><label>Service /10</label><input type="number" id="rv-service-'+r.id+'" min="1" max="10" placeholder="1-10"></div><div class="review-field"><label>Would Go Again?</label><select id="rv-wga-'+r.id+'"><option value="">Select…</option><option value="yes">Yes</option><option value="no">No</option></select></div><div class="review-field"><label>Favourite Dish</label><input type="text" id="rv-dish-'+r.id+'" placeholder="e.g. Truffle pasta"></div><button class="btn btn-gold btn-sm" style="margin-top:6px;" onclick="submitReview(\''+r.id+'\')">Submit Review</button></div>';
 }
 
@@ -541,6 +587,42 @@ const completed = getCompletedRestaurants();
   finally { showLoading(false); }
 }
 
+async function updateReview(restaurantId, reviewId) {
+  const food=parseInt(document.getElementById('rv-food-'+restaurantId).value);
+  const vibes=parseInt(document.getElementById('rv-vibes-'+restaurantId).value);
+  const service=parseInt(document.getElementById('rv-service-'+restaurantId).value);
+  const wga=document.getElementById('rv-wga-'+restaurantId).value;
+  const dish=(document.getElementById('rv-dish-'+restaurantId).value||'').trim();
+
+  if([food,vibes,service].some(v=>isNaN(v)||v<1||v>10)) return showError('All scores must be between 1 and 10.');
+  if(!wga) return showError('Please select Would Go Again.');
+
+  showLoading(true);
+
+  try {
+    await dbUpdate('reviews', 'id=eq.' + reviewId, {
+      food: food,
+      vibes: vibes,
+      service: service,
+      would_go_again: wga === 'yes',
+      favourite_dish: dish
+    });
+
+    await loadAllData();
+
+    USER_IS_EDITING = false;
+    LAST_EDIT_AT = 0;
+
+    STATE.activeTab = 1;
+    render();
+
+  } catch(e) {
+    showError('Failed to update review: ' + e.message);
+  } finally {
+    showLoading(false);
+  }
+}
+ 
 function renderCompleted() {
   const completed=getCompletedRestaurants();
   if(STATE.users.length<2) return '<div class="empty-state"><span>👤</span>Need 2 users.</div>';
