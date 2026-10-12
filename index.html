@@ -396,7 +396,8 @@ function wouldCreateThreeSameScoresInARow(userName, nextScore) {
 
   if (lastTwo.length < 2) return false;
 
-  return lastTwo[0].score === nextScore && lastTwo[1].score === nextScore;
+  return Number(lastTwo[0].score) === Number(nextScore) &&
+       Number(lastTwo[1].score) === Number(nextScore);
 }
  
 async function submitScore(restaurantId, userName) {
