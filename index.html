@@ -485,6 +485,44 @@ function renderPendingCard(r) {
   </div>`;
 }
 
+async function deletePendingRestaurant(pendingId) {
+  if (!confirm('Delete this restaurant from Pending Reviews? This will also remove any submitted review for it.')) return;
+
+  const pending = STATE.pendingReviews.find(r => r.id === pendingId);
+  if (!pending) return showError('Pending restaurant not found.');
+
+  const baseRestaurantId = pending.restaurant_id || pending.id;
+
+  showLoading(true);
+
+  try {
+    // Delete any reviews already submitted for this pending restaurant
+    await dbDelete('reviews', `restaurant_id=eq.${pending.id}`);
+
+    // Delete the pending review row
+    await dbDelete('pending_reviews', `id=eq.${pending.id}`);
+
+    // Clean up any leftover wishlist scores for the base restaurant
+    await dbDelete('desire_scores', `restaurant_id=eq.${baseRestaurantId}`);
+
+    // Delete the original wishlist/base restaurant row as well
+    await dbDelete('wishlist', `id=eq.${baseRestaurantId}`);
+
+    await loadAllData();
+
+    USER_IS_EDITING = false;
+    LAST_EDIT_AT = 0;
+
+    STATE.activeTab = 1;
+    render();
+
+  } catch(e) {
+    showError('Failed to delete pending restaurant: ' + e.message);
+  } finally {
+    showLoading(false);
+  }
+}
+ 
 function renderReviewCol(r,userName,existingReview,isLocked,bothReviewed) {
   const isMine=userName===STATE.currentUser;
   const showData=bothReviewed&&existingReview;
