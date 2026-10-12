@@ -171,7 +171,7 @@ document.addEventListener('focusin', function(e) {
 document.addEventListener('focusout', function() {
   LAST_EDIT_AT = Date.now();
 }, true);
- 
+
 function getSession(k) { try { return sessionStorage.getItem(k); } catch(e) { return null; } }
 function setSession(k,v) { try { sessionStorage.setItem(k,v); } catch(e) {} }
 function clearSession(k) { try { sessionStorage.removeItem(k); } catch(e) {} }
@@ -472,57 +472,9 @@ function renderPendingCard(r) {
   const otherReview=STATE.reviews.find(rv=>rv.restaurant_id===r.id&&rv.user_name===otherName);
   const bothReviewed=myReview&&otherReview;
   const visited=r.visited_at?new Date(r.visited_at).toLocaleDateString():'';
-  return <div class="review-grid">
-      ${renderReviewCol(r, STATE.currentUser, myReview, false, bothReviewed)}
-      ${renderReviewCol(r, otherName, otherReview, true, bothReviewed)}
-    </div>
-
-    <hr class="divider">
-
-    <div class="flex-gap">
-      <button class="btn btn-sm btn-danger" onclick="deletePendingRestaurant('${r.id}')">🗑 Delete Pending Restaurant</button>
-    </div>
-  </div>`;
+  return '<div class="card"><div class="card-header"><div><div class="card-title">'+esc(r.name)+'</div><div class="card-sub"><span class="tag">'+esc(r.cuisine)+'</span>'+(visited?' <span class="text-muted">Visited '+visited+'</span>':'')+'</div></div></div>'+(!bothReviewed?'<div class="banner banner-info mt-8">Reviews hidden until both users submit.</div>':'')+(myReview&&!otherReview?'<div class="banner banner-waiting mt-8">⏳ Awaiting review from '+esc(otherName)+'</div>':'')+(bothReviewed?'<div class="banner banner-success mt-8">✓ Both reviews submitted!</div>':'')+'<div class="review-grid">'+renderReviewCol(r,STATE.currentUser,myReview,false,bothReviewed)+renderReviewCol(r,otherName,otherReview,true,bothReviewed)+'</div></div>';
 }
 
-async function deletePendingRestaurant(pendingId) {
-  if (!confirm('Delete this restaurant from Pending Reviews? This will also remove any submitted review for it.')) return;
-
-  const pending = STATE.pendingReviews.find(r => r.id === pendingId);
-  if (!pending) return showError('Pending restaurant not found.');
-
-  const baseRestaurantId = pending.restaurant_id || pending.id;
-
-  showLoading(true);
-
-  try {
-    // Delete any reviews already submitted for this pending restaurant
-    await dbDelete('reviews', `restaurant_id=eq.${pending.id}`);
-
-    // Delete the pending review row
-    await dbDelete('pending_reviews', `id=eq.${pending.id}`);
-
-    // Clean up any leftover wishlist scores for the base restaurant
-    await dbDelete('desire_scores', `restaurant_id=eq.${baseRestaurantId}`);
-
-    // Delete the original wishlist/base restaurant row as well
-    await dbDelete('wishlist', `id=eq.${baseRestaurantId}`);
-
-    await loadAllData();
-
-    USER_IS_EDITING = false;
-    LAST_EDIT_AT = 0;
-
-    STATE.activeTab = 1;
-    render();
-
-  } catch(e) {
-    showError('Failed to delete pending restaurant: ' + e.message);
-  } finally {
-    showLoading(false);
-  }
-}
- 
 function renderReviewCol(r,userName,existingReview,isLocked,bothReviewed) {
   const isMine=userName===STATE.currentUser;
   const showData=bothReviewed&&existingReview;
@@ -624,6 +576,11 @@ async function init() {
   }
 }
 
+setInterval(async()=>{
+  if(!STATE.currentUser) return;
+  try { await loadAllData(); setConnectionStatus(true); const tc=document.getElementById('tab-content'); if(tc) tc.innerHTML=renderActiveTab(); renderNotifBell(); }
+  catch(e) { setConnectionStatus(false); }
+},30000);
 setInterval(async () => {
   if (!STATE.currentUser) return;
 
