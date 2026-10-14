@@ -787,11 +787,21 @@ function hideIntroAnimation() {
   const intro = document.getElementById('rt-intro');
   if (!intro) return;
 
+  const frame = intro.querySelector('iframe');
+
+  // Immediately stop the iframe animation so it cannot flash/restart.
+  if (frame) {
+    frame.style.opacity = '0';
+    frame.style.visibility = 'hidden';
+    frame.src = 'about:blank';
+  }
+
+  // Fade out only the plain cream background overlay.
   intro.classList.add('rt-intro-hidden');
 
   setTimeout(() => {
     intro.remove();
-  }, 600);
+  }, 350);
 }
  
 window.addEventListener('load', () => {
