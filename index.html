@@ -6,6 +6,29 @@
 <title>🍽️ Restaurant Tracker</title>
 <link rel="manifest" href="/manifest.json">
 <style>
+ .rt-intro {
+  position: fixed;
+  inset: 0;
+  z-index: 999999;
+  background: #FBF7EE;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 500ms ease, visibility 500ms ease;
+}
+
+.rt-intro.rt-intro-hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.rt-intro-frame {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  background: #FBF7EE;
+}
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   :root {
     --burgundy: #6B2D3E;
@@ -128,6 +151,9 @@
 </style>
 </head>
 <body>
+ <div id="rt-intro" class="rt-intro">
+  <iframe src="intro.html" class="rt-intro-frame" title="Restaurant Tracker intro animation"></iframe>
+</div>
 <div id="loading">
   <div class="spinner"></div>
   <div style="font-size:0.9rem;color:var(--burgundy);">Loading…</div>
@@ -757,8 +783,27 @@ setInterval(async () => {
   }
 }, 30000);
 
-init();
+function hideIntroAnimation() {
+  const intro = document.getElementById('rt-intro');
+  if (!intro) return;
 
+  intro.classList.add('rt-intro-hidden');
+
+  setTimeout(() => {
+    intro.remove();
+  }, 600);
+}
+ 
+window.addEventListener('load', () => {
+  init();
+
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  setTimeout(() => {
+    hideIntroAnimation();
+  }, prefersReducedMotion ? 500 : 3000);
+});
+ 
 const VAPID_PUBLIC = 'BFvpuKeKiAHxAQa1jVIcqvxA673TQCybkSY7TemB8_tV3hNg2No0EM3MMtOBaOqPvnZu0fmdvpASwUf1li___ss';
 let notifOpen = false;
 let notifPollInterval = null;
